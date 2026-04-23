@@ -64,5 +64,27 @@
     "translateBtn": "翻訳する",
     "historyTitle": "履歴",
     "cooldownError": "少し時間をおいてから再度お試しください"
+  },
+  "job": {
+    "title": "求人相談窓口",
+    "filterAll": "すべて",
+    "filterPublic": "公的機関",
+    "filterPrivate": "民間",
+    "verified": "確認済み",
+    "pending": "確認中",
+    "verifiedAt": "確認日",
+    "openUrl": "公式サイトを開く",
+    "visaLabel": "対応在留資格",
+    "langLabel": "対応言語",
+    "hoursLabel": "受付時間",
+    "telLabel": "電話",
+    "disclaimer": "本アプリは雇用契約の当事者ではありません。掲載情報は参考情報です。",
+    "noResults": "条件に一致する相談先が見つかりません",
+    "agencies": {
+      "tokyo-foreigner": { "name": "東京外国人雇用サービスセンター", "note": "公的機関。無料で求人紹介・職業相談を実施。" },
+      "lead-to-japan": { "name": "株式会社Lead to JAPAN", "note": "有料職業紹介・登録支援機関。費用条件は個別確認。" },
+      "sherpa": { "name": "株式会社シェルパ", "note": "ネパール語対応。登録支援機関番号確認済み。" },
+      "sapna": { "name": "SAPNA", "note": "番号照合を確認中。掲載後も情報更新に注意。" }
+    }
   }
 }
