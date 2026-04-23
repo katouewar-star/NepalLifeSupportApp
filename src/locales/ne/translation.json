@@ -1,0 +1,68 @@
+{
+  "tabs": {
+    "home": "होम",
+    "translation": "अनुवाद",
+    "train": "रेल",
+    "job": "काम",
+    "trash": "फोहोर",
+    "community": "समुदाय"
+  },
+  "home": {
+    "appName": "🇳🇵 नेपाली जीवन सहयोग",
+    "greeting": "नमस्ते",
+    "greetingSuffix": "जी",
+    "sectionTitle": "सुविधाहरू",
+    "signOut": "साइन आउट",
+    "langToggle": "日本語",
+    "features": {
+      "translation": { "label": "अनुवाद", "desc": "जापानी ⇔ नेपाली" },
+      "train": { "label": "रेल जानकारी", "desc": "स्टेशन मार्गदर्शन" },
+      "job": { "label": "रोजगारी", "desc": "विदेशी स्वागत रोजगारी" },
+      "trash": { "label": "फोहोर", "desc": "क्षेत्रीय नियम र सूचना" },
+      "community": { "label": "समुदाय", "desc": "प्रश्न र उत्तर" }
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "लगइन",
+      "emailPlaceholder": "इमेल ठेगाना",
+      "passwordPlaceholder": "पासवर्ड",
+      "button": "लगइन",
+      "footerText": "खाता छैन?",
+      "footerLink": "नयाँ दर्ता",
+      "errorEmail": "इमेल ठेगाना भर्नुहोस्",
+      "errorPassword": "पासवर्ड भर्नुहोस्"
+    },
+    "register": {
+      "title": "खाता दर्ता",
+      "namePlaceholder": "नाम",
+      "emailPlaceholder": "इमेल ठेगाना",
+      "passwordPlaceholder": "पासवर्ड ({{min}} अक्षर भन्दा बढी)",
+      "button": "खाता दर्ता",
+      "footerText": "पहिले नै खाता छ?",
+      "footerLink": "लगइन गर्नुहोस्",
+      "errorName": "नाम भर्नुहोस्",
+      "errorEmail": "इमेल ठेगाना भर्नुहोस्",
+      "errorEmailFormat": "इमेल ठेगानाको ढाँचा सही छैन",
+      "errorPassword": "पासवर्ड {{min}} अक्षर भन्दा बढी हुनुपर्छ",
+      "emailConfirmation": "पुष्टि इमेल पठाइयो। दर्ता पूरा गर्न इमेल जाँच गर्नुहोस्।"
+    }
+  },
+  "trash": {
+    "title": "फोहोर फाल्ने नियम",
+    "placeholder": "हुलाक नम्बर (उदा: 160-0022)",
+    "searchBtn": "खोज्नुहोस्",
+    "notFound": "यस हुलाक नम्बरको फोहोर फाल्ने नियम भेटिएन",
+    "retry": "फेरि प्रयास गर्नुहोस्",
+    "everyWeek": "हरेक हप्ता",
+    "until": "सम्म"
+  },
+  "translation": {
+    "japanese": "जापानी",
+    "nepali": "नेपाली",
+    "inputPlaceholder": "{{lang}} टाइप गर्नुहोस्...",
+    "translateBtn": "अनुवाद गर्नुहोस्",
+    "historyTitle": "इतिहास",
+    "cooldownError": "कृपया केही समय पछि फेरि प्रयास गर्नुहोस्"
+  }
+}

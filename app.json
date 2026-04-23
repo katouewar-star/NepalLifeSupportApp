@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "ネパール生活支援",
+    "slug": "nepal-life-support",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.roadofkato.nepallifesupport"
+    },
+    "android": {
+      "package": "com.roadofkato.nepallifesupport"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-notifications",
+      "expo-asset",
+      "expo-secure-store"
+    ],
+    "scheme": "nepal-life-support",
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "d72243f5-b560-4f1d-83a0-3411379f5654"
+      }
+    },
+    "owner": "ewar"
+  }
+}

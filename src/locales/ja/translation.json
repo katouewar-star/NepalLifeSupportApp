@@ -1,0 +1,68 @@
+{
+  "tabs": {
+    "home": "ホーム",
+    "translation": "翻訳",
+    "train": "電車",
+    "job": "求人",
+    "trash": "ゴミ出し",
+    "community": "掲示板"
+  },
+  "home": {
+    "appName": "🇳🇵 ネパール生活支援",
+    "greeting": "नमस्ते",
+    "greetingSuffix": "さん",
+    "sectionTitle": "機能メニュー",
+    "signOut": "ログアウト",
+    "langToggle": "नेपाली",
+    "features": {
+      "translation": { "label": "翻訳", "desc": "日本語 ⇔ ネパール語" },
+      "train": { "label": "電車案内", "desc": "乗り換え案内" },
+      "job": { "label": "求人情報", "desc": "外国人歓迎求人" },
+      "trash": { "label": "ゴミ出し", "desc": "地域別ルール・通知" },
+      "community": { "label": "コミュニティ", "desc": "相談・Q&A・イベント" }
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "ログイン",
+      "emailPlaceholder": "メールアドレス",
+      "passwordPlaceholder": "パスワード",
+      "button": "ログイン",
+      "footerText": "アカウントをお持ちでない方は",
+      "footerLink": "新規登録",
+      "errorEmail": "メールアドレスを入力してください",
+      "errorPassword": "パスワードを入力してください"
+    },
+    "register": {
+      "title": "アカウント登録",
+      "namePlaceholder": "名前",
+      "emailPlaceholder": "メールアドレス",
+      "passwordPlaceholder": "パスワード（{{min}}文字以上）",
+      "button": "アカウント登録",
+      "footerText": "既にアカウントをお持ちの方は",
+      "footerLink": "ログインはこちら",
+      "errorName": "名前を入力してください",
+      "errorEmail": "メールアドレスを入力してください",
+      "errorEmailFormat": "メールアドレスの形式が正しくありません",
+      "errorPassword": "パスワードは{{min}}文字以上で入力してください",
+      "emailConfirmation": "確認メールを送信しました。メールを確認して登録を完了してください。"
+    }
+  },
+  "trash": {
+    "title": "ゴミ出しルール",
+    "placeholder": "郵便番号 (例: 160-0022)",
+    "searchBtn": "検索",
+    "notFound": "この郵便番号のゴミ出しルールは登録されていません",
+    "retry": "再試行",
+    "everyWeek": "毎週",
+    "until": "まで"
+  },
+  "translation": {
+    "japanese": "日本語",
+    "nepali": "ネパール語",
+    "inputPlaceholder": "{{lang}}を入力...",
+    "translateBtn": "翻訳する",
+    "historyTitle": "履歴",
+    "cooldownError": "少し時間をおいてから再度お試しください"
+  }
+}
