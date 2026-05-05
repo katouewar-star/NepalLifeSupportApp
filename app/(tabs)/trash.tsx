@@ -28,14 +28,14 @@ function TrashRuleCard({
 }) {
   const { t } = useTranslation()
   const weekLabel = formatWeekOfMonth(item.schedule.weekOfMonth, language)
-  const timeLabel = item.schedule.time
-    ? `${item.schedule.time}${t('trash.until')}`
-    : ''
+  const timeLabel = item.schedule.time ? `${item.schedule.time}${t('trash.until')}` : ''
 
   return (
     <View style={styles.card}>
       <View style={styles.cardHeader}>
-        <Text style={styles.cardIcon}>{item.icon}</Text>
+        <View style={styles.cardIconBox}>
+          <Text style={styles.cardIcon}>{item.icon}</Text>
+        </View>
         <Text style={styles.cardCategory}>{item.category}</Text>
       </View>
 
@@ -47,15 +47,8 @@ function TrashRuleCard({
         ))}
       </View>
 
-      {weekLabel ? (
-        <Text style={styles.weekLabel}>
-          {weekLabel}
-        </Text>
-      ) : null}
-
-      {timeLabel ? (
-        <Text style={styles.timeLabel}>{timeLabel}</Text>
-      ) : null}
+      {weekLabel ? <Text style={styles.weekLabel}>{weekLabel}</Text> : null}
+      {timeLabel ? <Text style={styles.timeLabel}>{timeLabel}</Text> : null}
 
       <Text style={styles.cardNotes}>{item.notes}</Text>
     </View>
@@ -83,124 +76,196 @@ export default function TrashScreen() {
   const isNotFound = error === 'NOT_FOUND'
 
   return (
-    <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
-      <Text style={styles.title}>{t('trash.title')}</Text>
-
-      {/* 郵便番号入力 */}
-      <View style={styles.searchRow}>
-        <TextInput
-          style={styles.input}
-          placeholder={t('trash.placeholder')}
-          value={input}
-          onChangeText={(text) => setInput(formatPostalCode(text))}
-          keyboardType="numeric"
-          maxLength={8}
-          testID="postal-input"
-        />
-        <TouchableOpacity
-          style={[styles.searchBtn, !isReady && styles.searchBtnDisabled]}
-          onPress={handleSearch}
-          disabled={!isReady || isLoading}
-          testID="search-button"
-        >
-          <Text style={styles.searchBtnText}>{t('trash.searchBtn')}</Text>
-        </TouchableOpacity>
+    <View style={styles.wrapper}>
+      {/* ── Header ── */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>{t('trash.title')}</Text>
       </View>
 
-      {/* ローディング */}
-      {isLoading && (
-        <ActivityIndicator
-          size="large"
-          color="#E63946"
-          style={styles.loader}
-          testID="loading-indicator"
-        />
-      )}
-
-      {/* エラー */}
-      {error && !isLoading && (
-        <View style={styles.errorBox}>
-          <Text style={styles.errorText}>
-            {isNotFound ? t('trash.notFound') : error}
-          </Text>
-          {!isNotFound && (
-            <TouchableOpacity style={styles.retryBtn} onPress={handleRetry} testID="retry-button">
-              <Text style={styles.retryBtnText}>{t('trash.retry')}</Text>
-            </TouchableOpacity>
-          )}
+      {/* ── Search bar ── */}
+      <View style={styles.searchSection}>
+        <View style={styles.searchRow}>
+          <TextInput
+            style={styles.input}
+            placeholder={t('trash.placeholder')}
+            value={input}
+            onChangeText={(text) => setInput(formatPostalCode(text))}
+            keyboardType="numeric"
+            maxLength={8}
+            testID="postal-input"
+          />
+          <TouchableOpacity
+            style={[styles.searchBtn, !isReady && styles.searchBtnDisabled]}
+            onPress={handleSearch}
+            disabled={!isReady || isLoading}
+            testID="search-button"
+          >
+            <Text style={styles.searchBtnText}>{t('trash.searchBtn')}</Text>
+          </TouchableOpacity>
         </View>
-      )}
+      </View>
 
-      {/* ルールカード */}
-      {!isLoading && !error && displayRules.length > 0 && (
-        <View style={styles.cardList}>
-          {displayRules.map((item) => (
-            <TrashRuleCard key={item.id} item={item} language={language} />
-          ))}
-        </View>
-      )}
-    </ScrollView>
+      <ScrollView style={styles.body} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+        {/* Loading */}
+        {isLoading && (
+          <ActivityIndicator
+            size="large"
+            color={GREEN}
+            style={styles.loader}
+            testID="loading-indicator"
+          />
+        )}
+
+        {/* Error */}
+        {error && !isLoading && (
+          <View style={styles.errorCard}>
+            <Text style={styles.errorIcon}>😔</Text>
+            <Text style={styles.errorText}>
+              {isNotFound ? t('trash.notFound') : error}
+            </Text>
+            {!isNotFound && (
+              <TouchableOpacity style={styles.retryBtn} onPress={handleRetry} testID="retry-button">
+                <Text style={styles.retryBtnText}>{t('trash.retry')}</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
+
+        {/* Rule cards */}
+        {!isLoading && !error && displayRules.length > 0 && (
+          <View style={styles.cardList}>
+            {displayRules.map((item) => (
+              <TrashRuleCard key={item.id} item={item} language={language} />
+            ))}
+          </View>
+        )}
+
+        {/* Empty state */}
+        {!isLoading && !error && displayRules.length === 0 && (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyIcon}>🗑️</Text>
+            <Text style={styles.emptyText}>郵便番号で検索してください</Text>
+          </View>
+        )}
+
+        <View style={styles.bottomPad} />
+      </ScrollView>
+    </View>
   )
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff', padding: 16 },
-  title: { fontSize: 22, fontWeight: 'bold', color: '#1a1a2e', marginBottom: 16 },
+const GREEN = '#27AE60'
 
-  searchRow: { flexDirection: 'row', gap: 8, marginBottom: 16 },
+const styles = StyleSheet.create({
+  wrapper: { flex: 1, backgroundColor: '#f5f5f5' },
+
+  header: {
+    backgroundColor: GREEN,
+    paddingTop: 52,
+    paddingBottom: 16,
+    paddingHorizontal: 20,
+  },
+  headerTitle: { color: '#fff', fontSize: 20, fontWeight: 'bold' },
+
+  searchSection: {
+    backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  searchRow: { flexDirection: 'row', gap: 8 },
   input: {
     flex: 1,
-    borderWidth: 1,
-    borderColor: '#ddd',
+    borderWidth: 1.5,
+    borderColor: '#e0e0e0',
     borderRadius: 12,
-    padding: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
     fontSize: 16,
     color: '#1a1a2e',
+    backgroundColor: '#fafafa',
   },
   searchBtn: {
-    backgroundColor: '#E63946',
+    backgroundColor: GREEN,
     borderRadius: 12,
-    paddingHorizontal: 16,
+    paddingHorizontal: 18,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  searchBtnDisabled: { backgroundColor: '#aaa' },
+  searchBtnDisabled: { backgroundColor: '#ccc' },
   searchBtnText: { color: '#fff', fontSize: 15, fontWeight: 'bold' },
 
-  loader: { marginVertical: 32 },
+  body: { flex: 1, padding: 16 },
+  loader: { marginVertical: 40 },
 
-  errorBox: { alignItems: 'center', marginVertical: 24, gap: 12 },
+  errorCard: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 24,
+    alignItems: 'center',
+    marginTop: 20,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+    gap: 10,
+  },
+  errorIcon: { fontSize: 36 },
   errorText: { fontSize: 15, color: '#666', textAlign: 'center', lineHeight: 22 },
   retryBtn: {
-    backgroundColor: '#E63946',
+    backgroundColor: GREEN,
     borderRadius: 10,
     paddingVertical: 10,
     paddingHorizontal: 24,
   },
   retryBtnText: { color: '#fff', fontSize: 14, fontWeight: 'bold' },
 
+  emptyState: {
+    alignItems: 'center',
+    marginTop: 60,
+    gap: 12,
+  },
+  emptyIcon: { fontSize: 48 },
+  emptyText: { fontSize: 14, color: '#aaa' },
+
   cardList: { gap: 12 },
   card: {
-    backgroundColor: '#f9f9f9',
-    borderRadius: 14,
-    padding: 14,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
     borderLeftWidth: 4,
-    borderLeftColor: '#E63946',
+    borderLeftColor: GREEN,
   },
-  cardHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 },
-  cardIcon: { fontSize: 32 },
+  cardHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 },
+  cardIconBox: {
+    width: 44,
+    height: 44,
+    borderRadius: 10,
+    backgroundColor: GREEN + '18',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cardIcon: { fontSize: 24 },
   cardCategory: { fontSize: 17, fontWeight: 'bold', color: '#1a1a2e', flex: 1 },
 
-  badgeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 6 },
+  badgeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 8 },
   dayBadge: {
-    backgroundColor: '#E63946',
-    borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    backgroundColor: GREEN,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
   },
   dayBadgeText: { color: '#fff', fontSize: 13, fontWeight: '600' },
 
   weekLabel: { fontSize: 13, color: '#555', marginBottom: 4 },
   timeLabel: { fontSize: 13, color: '#888', marginBottom: 6 },
   cardNotes: { fontSize: 14, color: '#333', lineHeight: 20 },
+
+  bottomPad: { height: 20 },
 })

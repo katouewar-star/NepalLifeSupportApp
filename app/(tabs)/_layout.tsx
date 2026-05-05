@@ -2,9 +2,8 @@ import { Tabs } from 'expo-router'
 import { Text } from 'react-native'
 import { useTranslation } from 'react-i18next'
 
-// アイコンの代替（Phase1はテキストアイコン、後でアイコンライブラリ導入）
 function TabIcon({ label }: { label: string }) {
-  return <Text style={{ fontSize: 20 }}>{label}</Text>
+  return <Text style={{ fontSize: 18 }}>{label}</Text>
 }
 
 export default function TabsLayout() {
@@ -15,8 +14,19 @@ export default function TabsLayout() {
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: '#E63946',
-        tabBarInactiveTintColor: '#999',
-        tabBarStyle: { paddingBottom: 4 },
+        tabBarInactiveTintColor: '#bbb',
+        tabBarStyle: {
+          paddingBottom: 6,
+          paddingTop: 4,
+          height: 58,
+          borderTopWidth: 1,
+          borderTopColor: '#eee',
+          backgroundColor: '#fff',
+        },
+        tabBarLabelStyle: {
+          fontSize: 10,
+          fontWeight: '600',
+        },
       }}
     >
       <Tabs.Screen
@@ -45,6 +55,20 @@ export default function TabsLayout() {
         options={{
           title: t('tabs.job'),
           tabBarIcon: () => <TabIcon label="💼" />,
+        }}
+      />
+      <Tabs.Screen
+        name="school"
+        options={{
+          title: t('tabs.school'),
+          tabBarIcon: () => <TabIcon label="🎓" />,
+        }}
+      />
+      <Tabs.Screen
+        name="realestate"
+        options={{
+          title: t('tabs.realestate'),
+          tabBarIcon: () => <TabIcon label="🏡" />,
         }}
       />
       <Tabs.Screen

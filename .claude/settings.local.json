@@ -3,7 +3,21 @@
     "allow": [
       "Bash(node:*)",
       "Bash(npm install:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:www.nepa-nepalandjapan.com)",
+      "WebFetch(domain:www.japanlivingguide.jp)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:www.isi-education.com)",
+      "WebFetch(domain:www.akamonkai.ac.jp)",
+      "WebFetch(domain:group.jp-sji.org)",
+      "WebFetch(domain:wagaya-japan.com)",
+      "WebFetch(domain:bridgelife-japan.com)",
+      "WebFetch(domain:www.gtn.co.jp)",
+      "WebFetch(domain:www.best-estate.jp)",
+      "Bash(npx jest:*)",
+      "Bash(npx tsc:*)"
     ]
   }
 }

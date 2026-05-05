@@ -1,0 +1,187 @@
+{
+  "tabs": {
+    "home": "Home",
+    "translation": "Translate",
+    "train": "Train",
+    "job": "Jobs",
+    "school": "School",
+    "realestate": "Housing",
+    "trash": "Trash",
+    "community": "Community"
+  },
+  "home": {
+    "appName": "🇳🇵 Nepal Life Support",
+    "greeting": "नमस्ते",
+    "greetingSuffix": "",
+    "sectionTitle": "Features",
+    "signOut": "Sign Out",
+    "langToggle": "नेपाली",
+    "features": {
+      "translation": { "label": "Translate", "desc": "Japanese ⇔ Nepali" },
+      "train": { "label": "Train Guide", "desc": "Route guidance" },
+      "job": { "label": "Job Info", "desc": "Foreigner-friendly jobs" },
+      "school": { "label": "Schools", "desc": "Language schools & agents" },
+      "realestate": { "label": "Housing", "desc": "Foreigner-friendly rentals" },
+      "trash": { "label": "Trash", "desc": "Local rules & reminders" },
+      "community": { "label": "Community", "desc": "Q&A & Events" }
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Login",
+      "emailPlaceholder": "Email address",
+      "passwordPlaceholder": "Password",
+      "button": "Login",
+      "footerText": "Don't have an account?",
+      "footerLink": "Register",
+      "errorEmail": "Please enter your email",
+      "errorPassword": "Please enter your password"
+    },
+    "register": {
+      "title": "Create Account",
+      "namePlaceholder": "Name",
+      "emailPlaceholder": "Email address",
+      "passwordPlaceholder": "Password ({{min}}+ characters)",
+      "button": "Create Account",
+      "footerText": "Already have an account?",
+      "footerLink": "Login here",
+      "errorName": "Please enter your name",
+      "errorEmail": "Please enter your email",
+      "errorEmailFormat": "Invalid email format",
+      "errorPassword": "Password must be at least {{min}} characters",
+      "emailConfirmation": "Confirmation email sent. Please check your email to complete registration."
+    }
+  },
+  "trash": {
+    "title": "Trash Rules",
+    "placeholder": "Postal code (e.g. 160-0022)",
+    "searchBtn": "Search",
+    "notFound": "No trash rules found for this postal code",
+    "retry": "Retry",
+    "everyWeek": "Every week",
+    "until": "until"
+  },
+  "translation": {
+    "japanese": "Japanese",
+    "nepali": "Nepali",
+    "inputPlaceholder": "Enter {{lang}}...",
+    "translateBtn": "Translate",
+    "historyTitle": "History",
+    "cooldownError": "Please wait a moment before trying again"
+  },
+  "job": {
+    "title": "Job Consultation",
+    "filterAll": "All",
+    "filterPublic": "Public",
+    "filterPrivate": "Private",
+    "verified": "Verified",
+    "pending": "Pending",
+    "verifiedAt": "Verified on",
+    "openUrl": "Open Official Site",
+    "visaLabel": "Visa types",
+    "langLabel": "Languages",
+    "hoursLabel": "Hours",
+    "telLabel": "Phone",
+    "disclaimer": "This app is not a party to employment contracts. Information is for reference only.",
+    "noResults": "No agencies found matching the selected filter",
+    "agencies": {
+      "tokyo-foreigner": { "name": "Tokyo Foreign Workers Employment Service Center", "note": "Public agency. Free job referral and career consultation." },
+      "lead-to-japan": { "name": "Lead to JAPAN Co., Ltd.", "note": "Paid job placement & registered support agency. Confirm fees individually." },
+      "sherpa": { "name": "Sherpa Co., Ltd.", "note": "Nepali language support available. Registration number verified." },
+      "sapna": { "name": "SAPNA", "note": "Registration number under review. Check for updates after listing." }
+    }
+  },
+  "school": {
+    "title": "Schools & Agents",
+    "featuredTitle": "Featured",
+    "filterAll": "All",
+    "filterLanguage": "Language Schools",
+    "filterVocational": "Vocational",
+    "filterUniversity": "University",
+    "filterAgent": "Agents",
+    "verified": "Verified",
+    "pending": "Pending",
+    "verifiedAt": "Verified on",
+    "openUrl": "Open Official Site",
+    "locationLabel": "Location",
+    "visaSupport": "Visa support available",
+    "nepalStaff": "Nepali-speaking staff",
+    "disclaimer": "This app is not a party to enrollment procedures. Information is for reference only.",
+    "noResults": "No schools found matching the selected filter",
+    "schools": {
+      "isi": {
+        "name": "ISI Japanese Language School (Shinjuku)",
+        "note": "One of Japan's largest language schools. Many Nepali students enrolled. Strong university admission support."
+      },
+      "akamonkai": {
+        "name": "Akamonkai Japanese Language School",
+        "note": "Excellent track record for university and graduate school admission. Located near the University of Tokyo in Bunkyo."
+      },
+      "sendagaya": {
+        "name": "Sendagaya Japanese Language School",
+        "note": "Academic and career development support. Conveniently located in Shibuya."
+      },
+      "nepal-and-japan": {
+        "name": "Nepal & Japan",
+        "note": "Nepali and Japanese staff work together. Full support from school admission through to employment."
+      }
+    }
+  },
+  "community": {
+    "title": "Community",
+    "filterAll": "All",
+    "filterQa": "Q&A",
+    "filterLife": "Daily Life",
+    "filterEvent": "Events",
+    "newPost": "New Post",
+    "likes": "Likes",
+    "comments": "Comments",
+    "noResults": "No posts yet",
+    "commentCount": "{{count}} comments",
+    "commentPlaceholder": "Write a comment...",
+    "commentSend": "Send",
+    "loginRequired": "Please sign in to comment",
+    "postNotFound": "Post not found",
+    "createPost": {
+      "title": "Create Post",
+      "titleLabel": "Title",
+      "bodyLabel": "Body",
+      "categoryLabel": "Category",
+      "submit": "Post",
+      "cancel": "Cancel"
+    }
+  },
+  "realestate": {
+    "title": "Housing Support",
+    "featuredTitle": "Featured",
+    "filterAll": "All",
+    "filterPortal": "Portals",
+    "filterAgency": "Agencies",
+    "filterGuarantee": "Rent Guarantee",
+    "verified": "Verified",
+    "pending": "Pending",
+    "openUrl": "Open Official Site",
+    "nepalLang": "Nepali language support",
+    "guarantorFree": "No guarantor properties available",
+    "disclaimer": "This app is not a party to rental contracts. Information is for reference only. Confirm terms directly with each company.",
+    "noResults": "No companies found matching the selected filter",
+    "agents": {
+      "wagaya-japan": {
+        "name": "wagaya Japan",
+        "note": "Japan's largest foreigner-focused real estate portal. Supports 13 languages including Nepali. Many no-guarantor properties. 24/7 support available."
+      },
+      "bridge-life": {
+        "name": "Bridge Life Co., Ltd.",
+        "note": "Foreign resident specialist real estate agency. Nepali among 8 supported languages. Founded 2008 with 10,000+ cases handled. Support from move-in to move-out."
+      },
+      "gtn": {
+        "name": "GTN (Global Trust Networks)",
+        "note": "Rent guarantee company specializing in foreign residents. Nepali language support. Helps foreigners pass rental screening. 200,000+ cases per year."
+      },
+      "best-estate": {
+        "name": "Best-Estate.jp",
+        "note": "Property search site for foreigners with English UI. Many no-guarantor and foreigner-welcome listings across Japan."
+      }
+    }
+  }
+}

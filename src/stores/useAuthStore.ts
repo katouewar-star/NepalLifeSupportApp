@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import i18n from '../lib/i18n'
 
-export type AppLanguage = 'ne' | 'ja'
+export type AppLanguage = 'ne' | 'ja' | 'en'
 
 export interface AppUser {
   id: string

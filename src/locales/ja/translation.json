@@ -4,6 +4,8 @@
     "translation": "翻訳",
     "train": "電車",
     "job": "求人",
+    "school": "学校",
+    "realestate": "住まい",
     "trash": "ゴミ出し",
     "community": "掲示板"
   },
@@ -13,11 +15,13 @@
     "greetingSuffix": "さん",
     "sectionTitle": "機能メニュー",
     "signOut": "ログアウト",
-    "langToggle": "नेपाली",
+    "langToggle": "English",
     "features": {
       "translation": { "label": "翻訳", "desc": "日本語 ⇔ ネパール語" },
       "train": { "label": "電車案内", "desc": "乗り換え案内" },
       "job": { "label": "求人情報", "desc": "外国人歓迎求人" },
+      "school": { "label": "学校紹介", "desc": "日本語学校・エージェント" },
+      "realestate": { "label": "住まい探し", "desc": "外国人向け不動産" },
       "trash": { "label": "ゴミ出し", "desc": "地域別ルール・通知" },
       "community": { "label": "コミュニティ", "desc": "相談・Q&A・イベント" }
     }
@@ -85,6 +89,99 @@
       "lead-to-japan": { "name": "株式会社Lead to JAPAN", "note": "有料職業紹介・登録支援機関。費用条件は個別確認。" },
       "sherpa": { "name": "株式会社シェルパ", "note": "ネパール語対応。登録支援機関番号確認済み。" },
       "sapna": { "name": "SAPNA", "note": "番号照合を確認中。掲載後も情報更新に注意。" }
+    }
+  },
+  "school": {
+    "title": "学校・エージェント紹介",
+    "featuredTitle": "おすすめ",
+    "filterAll": "すべて",
+    "filterLanguage": "日本語学校",
+    "filterVocational": "専門学校",
+    "filterUniversity": "大学",
+    "filterAgent": "エージェント",
+    "verified": "確認済み",
+    "pending": "確認中",
+    "verifiedAt": "確認日",
+    "openUrl": "公式サイトを開く",
+    "locationLabel": "所在地",
+    "visaSupport": "留学ビザ対応",
+    "nepalStaff": "ネパール語スタッフあり",
+    "disclaimer": "本アプリは入学手続きの当事者ではありません。掲載情報は参考情報です。",
+    "noResults": "条件に一致する学校が見つかりません",
+    "schools": {
+      "isi": {
+        "name": "ISI日本語学校 新宿",
+        "note": "日本最大級の日本語学校。ネパール人在籍者多数。大学進学サポート充実。"
+      },
+      "akamonkai": {
+        "name": "赤門会日本語学校",
+        "note": "大学・大学院進学に強い。東京大学近くの文京区に立地。"
+      },
+      "sendagaya": {
+        "name": "千駄ヶ谷日本語学校",
+        "note": "進学・キャリア形成サポートが充実。渋谷区の好立地。"
+      },
+      "nepal-and-japan": {
+        "name": "Nepal & Japan",
+        "note": "ネパール人・日本人スタッフが連携。進学から就職まで一貫サポート。"
+      }
+    }
+  },
+  "community": {
+    "title": "掲示板",
+    "filterAll": "すべて",
+    "filterQa": "相談・Q&A",
+    "filterLife": "生活情報",
+    "filterEvent": "イベント",
+    "newPost": "投稿する",
+    "likes": "いいね",
+    "comments": "コメント",
+    "noResults": "まだ投稿がありません",
+    "commentCount": "{{count}}件のコメント",
+    "commentPlaceholder": "コメントを入力...",
+    "commentSend": "送信",
+    "loginRequired": "コメントするにはログインが必要です",
+    "postNotFound": "投稿が見つかりません",
+    "createPost": {
+      "title": "投稿作成",
+      "titleLabel": "タイトル",
+      "bodyLabel": "本文",
+      "categoryLabel": "カテゴリ",
+      "submit": "投稿する",
+      "cancel": "キャンセル"
+    }
+  },
+  "realestate": {
+    "title": "住まい探しサポート",
+    "featuredTitle": "おすすめ",
+    "filterAll": "すべて",
+    "filterPortal": "ポータル",
+    "filterAgency": "仲介会社",
+    "filterGuarantee": "家賃保証",
+    "verified": "確認済み",
+    "pending": "確認中",
+    "openUrl": "公式サイトを開く",
+    "nepalLang": "ネパール語対応",
+    "guarantorFree": "保証人不要物件あり",
+    "disclaimer": "本アプリは賃貸契約の当事者ではありません。掲載情報は参考情報です。入居条件は各社に直接ご確認ください。",
+    "noResults": "条件に一致する業者が見つかりません",
+    "agents": {
+      "wagaya-japan": {
+        "name": "wagaya Japan",
+        "note": "13言語対応（ネパール語含む）の日本最大級外国人向け不動産ポータル。保証人不要物件を多数掲載。24時間サポートあり。"
+      },
+      "bridge-life": {
+        "name": "株式会社ブリッジライフ",
+        "note": "ネパール語含む8言語対応の外国人専門不動産仲介。創業2008年、仲介実績10,000件超。入居から退去まで一貫サポート。"
+      },
+      "gtn": {
+        "name": "GTN（グローバルトラストネットワークス）",
+        "note": "外国人専門の家賃保証会社。ネパール語対応。審査が通りにくい外国人の入居をサポート。年間20万件以上の実績。"
+      },
+      "best-estate": {
+        "name": "Best-Estate.jp",
+        "note": "外国人向け物件検索サイト。英語UI対応。保証人不要・外国人歓迎物件を多数掲載。全国対応。"
+      }
     }
   }
 }
