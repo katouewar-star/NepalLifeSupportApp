@@ -6,12 +6,21 @@ import {
   ScrollView,
   ActivityIndicator,
   StyleSheet,
+  Alert,
+  Platform,
 } from 'react-native'
 import { useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useTranslationStore } from '@/stores/useTranslationStore'
 import type { TranslationDirection } from '@/stores/useTranslationStore'
 import { translate, TRANSLATION_MAX_CHARS } from '@/lib/translation'
+import {
+  requestMicPermission,
+  startRecording,
+  stopRecording,
+  transcribeAudio,
+} from '@/lib/voiceTranslation'
+import { pickImageAndExtract, takeCameraAndExtract } from '@/lib/scanTranslation'
 
 const TRANSLATE_COOLDOWN_MS = 3000
 
@@ -23,6 +32,73 @@ export default function TranslationScreen() {
     useTranslationStore()
   const lastTranslateAt = useRef<number>(0)
   const { t } = useTranslation()
+  const [isRecording, setIsRecording] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
+
+  const handleVoice = async () => {
+    if (isRecording) {
+      setIsRecording(false)
+      setIsProcessing(true)
+      try {
+        const uri = await stopRecording()
+        if (uri) {
+          const text = await transcribeAudio(uri)
+          setInputText(text)
+        }
+      } catch {
+        setError('音声認識に失敗しました')
+      } finally {
+        setIsProcessing(false)
+      }
+    } else {
+      const granted = await requestMicPermission()
+      if (!granted) { setError('マイクへのアクセスが許可されていません'); return }
+      try {
+        await startRecording()
+        setIsRecording(true)
+      } catch {
+        setError('録音を開始できませんでした')
+      }
+    }
+  }
+
+  const handleScan = () => {
+    Alert.alert(
+      'スキャン翻訳 / स्क्यान अनुवाद',
+      '画像の取得方法を選択 / छवि कसरी लिने?',
+      [
+        {
+          text: '📷 カメラ',
+          onPress: async () => {
+            setIsProcessing(true)
+            try {
+              const text = await takeCameraAndExtract()
+              if (text) setInputText(text)
+            } catch (e) {
+              setError(e instanceof Error ? e.message : 'スキャンに失敗しました')
+            } finally {
+              setIsProcessing(false)
+            }
+          },
+        },
+        {
+          text: '🖼️ ライブラリ',
+          onPress: async () => {
+            setIsProcessing(true)
+            try {
+              const text = await pickImageAndExtract()
+              if (text) setInputText(text)
+            } catch (e) {
+              setError(e instanceof Error ? e.message : 'スキャンに失敗しました')
+            } finally {
+              setIsProcessing(false)
+            }
+          },
+        },
+        { text: 'キャンセル', style: 'cancel' },
+      ]
+    )
+  }
 
   const handleTranslate = async () => {
     if (!inputText.trim()) return
@@ -83,6 +159,37 @@ export default function TranslationScreen() {
             <Text style={styles.langFlag}>{direction === 'ja-ne' ? '🇳🇵' : '🇯🇵'}</Text>
             <Text style={styles.langName}>{toLabel}</Text>
           </View>
+        </View>
+
+        {/* ── Voice / Scan buttons ── */}
+        <View style={styles.actionRow}>
+          <TouchableOpacity
+            style={[styles.actionBtn, isRecording && styles.actionBtnActive]}
+            onPress={handleVoice}
+            disabled={isProcessing}
+          >
+            {isProcessing && !isRecording ? (
+              <ActivityIndicator size="small" color={RED} />
+            ) : (
+              <Text style={styles.actionIcon}>{isRecording ? '⏹' : '🎤'}</Text>
+            )}
+            <Text style={[styles.actionText, isRecording && styles.actionTextActive]}>
+              {isRecording ? '停止' : '音声入力'}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.actionBtn}
+            onPress={handleScan}
+            disabled={isProcessing || isRecording}
+          >
+            {isProcessing && !isRecording ? (
+              <ActivityIndicator size="small" color={RED} />
+            ) : (
+              <Text style={styles.actionIcon}>📷</Text>
+            )}
+            <Text style={styles.actionText}>スキャン</Text>
+          </TouchableOpacity>
         </View>
 
         {/* ── Input ── */}
@@ -300,4 +407,31 @@ const styles = StyleSheet.create({
   historyTranslated: { flex: 1, fontSize: 13, color: RED, textAlign: 'right' },
 
   bottomPad: { height: 20 },
+
+  // ── Action buttons (voice / scan) ──
+  actionRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 12,
+  },
+  actionBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 10,
+    borderRadius: 10,
+    backgroundColor: '#fff',
+    borderWidth: 1.5,
+    borderColor: '#e0e0e0',
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  actionBtnActive: { backgroundColor: '#FDEDEE', borderColor: RED },
+  actionIcon: { fontSize: 18 },
+  actionText: { fontSize: 13, fontWeight: '600', color: '#555' },
+  actionTextActive: { color: RED },
 })

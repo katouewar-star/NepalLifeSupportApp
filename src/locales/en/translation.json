@@ -27,7 +27,9 @@
       "trash": { "label": "Trash", "desc": "Local rules & reminders" },
       "community": { "label": "Community", "desc": "Q&A & Events" },
       "pizza":  { "label": "Pizza Info", "desc": "Order, delivery & part-time jobs" },
-      "survey": { "label": "Survey",     "desc": "Help us improve the app" }
+      "survey":   { "label": "Survey",       "desc": "Help us improve the app" },
+      "chatbot":  { "label": "AI Chat",     "desc": "Ask anything, anytime" },
+      "study":    { "label": "Language Study", "desc": "Nepali–Japanese flashcards" }
     }
   },
   "auth": {

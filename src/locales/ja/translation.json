@@ -27,7 +27,9 @@
       "trash": { "label": "ゴミ出し", "desc": "地域別ルール・通知" },
       "community": { "label": "コミュニティ", "desc": "相談・Q&A・イベント" },
       "pizza":   { "label": "ピザ情報",   "desc": "注文・デリバリー・バイト" },
-      "survey":  { "label": "アンケート", "desc": "アプリの改善にご協力を" }
+      "survey":   { "label": "アンケート",    "desc": "アプリの改善にご協力を" },
+      "chatbot":  { "label": "AIチャット",  "desc": "何でも相談できるAI" },
+      "study":    { "label": "語学学習",    "desc": "ネパール語・日本語フラッシュカード" }
     }
   },
   "auth": {

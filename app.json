@@ -17,7 +17,15 @@
       "expo-font",
       "expo-notifications",
       "expo-asset",
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-av",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "写真へのアクセスを許可してください（スキャン翻訳に使用）",
+          "cameraPermission": "カメラへのアクセスを許可してください（スキャン翻訳に使用）"
+        }
+      ]
     ],
     "scheme": "nepal-life-support",
     "extra": {
