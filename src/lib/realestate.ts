@@ -53,6 +53,26 @@ export const REAL_ESTATE_AGENTS: RealEstateAgent[] = [
     isVerified: true,
     verifiedAt: '2024-10-01',
   },
+  {
+    id: 'leopalace21',
+    category: 'agency',
+    location: '全国対応',
+    url: 'https://www.leopalace21.com/',
+    nepalLang: false,
+    guarantorFree: true,
+    isVerified: true,
+    verifiedAt: '2025-01-01',
+  },
+  {
+    id: 'suumo',
+    category: 'portal',
+    location: '全国対応',
+    url: 'https://suumo.jp/',
+    nepalLang: false,
+    guarantorFree: false,
+    isVerified: true,
+    verifiedAt: '2025-01-01',
+  },
 ]
 
 export function filterAgents(

@@ -8,7 +8,8 @@
     "realestate": "Housing",
     "trash": "Trash",
     "community": "Community",
-    "pizza": "Pizza"
+    "pizza": "Pizza",
+    "survey": "Survey"
   },
   "home": {
     "appName": "🇳🇵 Nepal Life Support",
@@ -25,7 +26,8 @@
       "realestate": { "label": "Housing", "desc": "Foreigner-friendly rentals" },
       "trash": { "label": "Trash", "desc": "Local rules & reminders" },
       "community": { "label": "Community", "desc": "Q&A & Events" },
-      "pizza": { "label": "Pizza Info", "desc": "Order, delivery & part-time jobs" }
+      "pizza":  { "label": "Pizza Info", "desc": "Order, delivery & part-time jobs" },
+      "survey": { "label": "Survey",     "desc": "Help us improve the app" }
     }
   },
   "auth": {
@@ -90,7 +92,9 @@
       "tokyo-foreigner": { "name": "Tokyo Foreign Workers Employment Service Center", "note": "Public agency. Free job referral and career consultation." },
       "lead-to-japan": { "name": "Lead to JAPAN Co., Ltd.", "note": "Paid job placement & registered support agency. Confirm fees individually." },
       "sherpa": { "name": "Sherpa Co., Ltd.", "note": "Nepali language support available. Registration number verified." },
-      "sapna": { "name": "SAPNA", "note": "Registration number under review. Check for updates after listing." }
+      "sapna":      { "name": "SAPNA",                            "note": "Registration number under review. Check for updates after listing." },
+      "hello-work": { "name": "Hello Work (Public Employment Office)", "note": "Free job placement and career support nationwide. Foreign resident support desks available." },
+      "indeed-jp":  { "name": "Indeed Japan",                    "note": "World's largest job site. Japanese and English support. Many foreigner-welcome listings." }
     }
   },
   "school": {
@@ -203,6 +207,14 @@
       "best-estate": {
         "name": "Best-Estate.jp",
         "note": "Property search site for foreigners with English UI. Many no-guarantor and foreigner-welcome listings across Japan."
+      },
+      "leopalace21": {
+        "name": "Leo Palace 21",
+        "note": "Furnished apartments available for short-term stays. Many foreigner-friendly properties nationwide."
+      },
+      "suumo": {
+        "name": "SUUMO",
+        "note": "Japan's largest real estate information site. Covers rentals, sales, and new construction nationwide."
       }
     }
   }

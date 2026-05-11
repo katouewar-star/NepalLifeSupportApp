@@ -57,6 +57,26 @@ export const JOB_AGENCIES: JobAgency[] = [
     isVerified: false,
     verifiedAt: '2024-09-01',
   },
+  {
+    id: 'hello-work',
+    category: 'public',
+    visaTypes: ['全般'],
+    languages: ['日本語'],
+    url: 'https://www.hellowork.mhlw.go.jp/',
+    tel: '各地域ハローワーク',
+    hours: '平日 8:30〜17:15',
+    isVerified: true,
+    verifiedAt: '2025-01-01',
+  },
+  {
+    id: 'indeed-jp',
+    category: 'private',
+    visaTypes: ['全般'],
+    languages: ['日本語', '英語'],
+    url: 'https://jp.indeed.com/',
+    isVerified: true,
+    verifiedAt: '2025-01-01',
+  },
 ]
 
 export function filterAgencies(
