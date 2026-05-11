@@ -7,7 +7,8 @@
     "school": "School",
     "realestate": "Housing",
     "trash": "Trash",
-    "community": "Community"
+    "community": "Community",
+    "pizza": "Pizza"
   },
   "home": {
     "appName": "🇳🇵 Nepal Life Support",
@@ -23,7 +24,8 @@
       "school": { "label": "Schools", "desc": "Language schools & agents" },
       "realestate": { "label": "Housing", "desc": "Foreigner-friendly rentals" },
       "trash": { "label": "Trash", "desc": "Local rules & reminders" },
-      "community": { "label": "Community", "desc": "Q&A & Events" }
+      "community": { "label": "Community", "desc": "Q&A & Events" },
+      "pizza": { "label": "Pizza Info", "desc": "Order, delivery & part-time jobs" }
     }
   },
   "auth": {
@@ -149,6 +151,26 @@
       "categoryLabel": "Category",
       "submit": "Post",
       "cancel": "Cancel"
+    }
+  },
+  "pizza": {
+    "title": "Pizza Info Support",
+    "featuredTitle": "Featured",
+    "filterAll": "All",
+    "filterChain": "Chains",
+    "filterDelivery": "Delivery",
+    "filterParttime": "Part-time Jobs",
+    "verified": "Verified",
+    "pending": "Pending",
+    "openUrl": "Open Official Site",
+    "noResults": "No results found",
+    "disclaimer": "This app is not a party to any service. Information is for reference only.",
+    "shops": {
+      "pizza-hut":     { "name": "Pizza Hut",              "note": "Nationwide pizza chain. Online orders and takeout available. Wide menu selection." },
+      "dominos":       { "name": "Domino's Pizza",         "note": "Nationwide pizza delivery chain. Discounts available via app. 30-minute delivery guarantee." },
+      "uber-eats":     { "name": "Uber Eats",              "note": "Order pizza and a variety of food via the smartphone app." },
+      "demaecan":      { "name": "Demae-can",              "note": "Japan's largest delivery service. Order pizza and more from numerous restaurants." },
+      "pizza-hut-job": { "name": "Pizza Shop Part-time Jobs", "note": "Part-time job listings for pizza delivery and store staff. Foreigner-friendly positions available." }
     }
   },
   "realestate": {

@@ -14,6 +14,7 @@ const FEATURE_COLORS = [
   '#16A085', // realestate
   '#27AE60', // trash
   '#E67E22', // community
+  '#C0392B', // pizza
 ]
 
 export default function HomeScreen() {
@@ -29,6 +30,7 @@ export default function HomeScreen() {
     { label: t('home.features.realestate.label'), icon: '🏡', route: '/(tabs)/realestate',  desc: t('home.features.realestate.desc') },
     { label: t('home.features.trash.label'),       icon: '🗑️', route: '/(tabs)/trash',       desc: t('home.features.trash.desc') },
     { label: t('home.features.community.label'),   icon: '💬', route: '/(tabs)/community',   desc: t('home.features.community.desc') },
+    { label: t('home.features.pizza.label'),       icon: '🍕', route: '/(tabs)/pizza',       desc: t('home.features.pizza.desc') },
   ], [t])
 
   const handleSignOut = async () => {

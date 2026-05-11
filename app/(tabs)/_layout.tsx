@@ -85,6 +85,13 @@ export default function TabsLayout() {
           tabBarIcon: () => <TabIcon label="💬" />,
         }}
       />
+      <Tabs.Screen
+        name="pizza"
+        options={{
+          title: t('tabs.pizza'),
+          tabBarIcon: () => <TabIcon label="🍕" />,
+        }}
+      />
     </Tabs>
   )
 }

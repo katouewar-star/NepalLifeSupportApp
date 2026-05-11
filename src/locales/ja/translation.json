@@ -7,7 +7,8 @@
     "school": "学校",
     "realestate": "住まい",
     "trash": "ゴミ出し",
-    "community": "掲示板"
+    "community": "掲示板",
+    "pizza": "ピザ"
   },
   "home": {
     "appName": "🇳🇵 ネパール生活支援",
@@ -23,7 +24,8 @@
       "school": { "label": "学校紹介", "desc": "日本語学校・エージェント" },
       "realestate": { "label": "住まい探し", "desc": "外国人向け不動産" },
       "trash": { "label": "ゴミ出し", "desc": "地域別ルール・通知" },
-      "community": { "label": "コミュニティ", "desc": "相談・Q&A・イベント" }
+      "community": { "label": "コミュニティ", "desc": "相談・Q&A・イベント" },
+      "pizza": { "label": "ピザ情報", "desc": "注文・デリバリー・バイト" }
     }
   },
   "auth": {
@@ -149,6 +151,26 @@
       "categoryLabel": "カテゴリ",
       "submit": "投稿する",
       "cancel": "キャンセル"
+    }
+  },
+  "pizza": {
+    "title": "ピザ情報サポート",
+    "featuredTitle": "おすすめ",
+    "filterAll": "すべて",
+    "filterChain": "チェーン店",
+    "filterDelivery": "デリバリー",
+    "filterParttime": "バイト",
+    "verified": "確認済み",
+    "pending": "確認中",
+    "openUrl": "公式サイトを開く",
+    "noResults": "条件に一致する情報が見つかりません",
+    "disclaimer": "本アプリは各サービスの当事者ではありません。掲載情報は参考情報です。",
+    "shops": {
+      "pizza-hut":     { "name": "ピザハット",           "note": "全国展開のピザチェーン。オンライン注文・テイクアウト対応。豊富なメニューあり。" },
+      "dominos":       { "name": "ドミノ・ピザ",         "note": "全国展開のピザデリバリーチェーン。アプリ注文で割引あり。30分配達保証。" },
+      "uber-eats":     { "name": "Uber Eats",            "note": "スマホアプリでピザを含む多様なフードをデリバリー注文できるサービス。" },
+      "demaecan":      { "name": "出前館",                "note": "日本最大級のデリバリーサービス。ピザをはじめ多数のレストランから注文可能。" },
+      "pizza-hut-job": { "name": "ピザ店アルバイト情報", "note": "ピザ配達・店舗スタッフのアルバイト求人情報。外国人歓迎の店舗あり。" }
     }
   },
   "realestate": {
