@@ -14,7 +14,7 @@ const FEATURE_COLORS = [
   '#16A085', // realestate
   '#27AE60', // trash
   '#E67E22', // community
-  '#C0392B', // pizza
+  '#C0392B', // visa
   '#2471A3', // survey
   '#1A5276', // chatbot
   '#117A65', // study

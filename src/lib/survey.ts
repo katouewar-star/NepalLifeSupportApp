@@ -66,7 +66,7 @@ export const Q6_OPTIONS = [
   { value: 'realestate',  ja: '住まい',      ne: 'घर खोजी' },
   { value: 'trash',       ja: 'ゴミ出し',    ne: 'फोहोर' },
   { value: 'community',   ja: 'コミュニティ', ne: 'समुदाय' },
-  { value: 'pizza',       ja: 'ピザ情報',    ne: 'पिज्जा' },
+  { value: 'visa',        ja: 'ビザ情報',    ne: 'भिसा' },
 ]
 
 export const Q8_OPTIONS = [
