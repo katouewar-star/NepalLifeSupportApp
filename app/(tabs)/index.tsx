@@ -33,7 +33,7 @@ export default function HomeScreen() {
     { label: t('home.features.realestate.label'), icon: '🏡', route: '/(tabs)/realestate',  desc: t('home.features.realestate.desc') },
     { label: t('home.features.trash.label'),       icon: '🗑️', route: '/(tabs)/trash',       desc: t('home.features.trash.desc') },
     { label: t('home.features.community.label'),   icon: '💬', route: '/(tabs)/community',   desc: t('home.features.community.desc') },
-    { label: t('home.features.pizza.label'),       icon: '🍕', route: '/(tabs)/pizza',       desc: t('home.features.pizza.desc') },
+    { label: t('home.features.visa.label'),        icon: '🛂', route: '/(tabs)/visa',        desc: t('home.features.visa.desc') },
     { label: t('home.features.survey.label'),      icon: '📋', route: '/(tabs)/survey',      desc: t('home.features.survey.desc') },
     { label: t('home.features.chatbot.label'),     icon: '🤖', route: '/chatbot',            desc: t('home.features.chatbot.desc') },
     { label: t('home.features.study.label'),       icon: '📚', route: '/study',              desc: t('home.features.study.desc') },

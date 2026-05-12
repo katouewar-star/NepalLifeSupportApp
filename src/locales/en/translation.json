@@ -8,7 +8,7 @@
     "realestate": "Housing",
     "trash": "Trash",
     "community": "Community",
-    "pizza": "Pizza",
+    "visa": "Visa",
     "survey": "Survey"
   },
   "home": {
@@ -26,7 +26,7 @@
       "realestate": { "label": "Housing", "desc": "Foreigner-friendly rentals" },
       "trash": { "label": "Trash", "desc": "Local rules & reminders" },
       "community": { "label": "Community", "desc": "Q&A & Events" },
-      "pizza":  { "label": "Pizza Info", "desc": "Order, delivery & part-time jobs" },
+      "visa":   { "label": "Visa Info",  "desc": "Residency status, offices & support" },
       "survey":   { "label": "Survey",       "desc": "Help us improve the app" },
       "chatbot":  { "label": "AI Chat",     "desc": "Ask anything, anytime" },
       "study":    { "label": "Language Study", "desc": "Nepali–Japanese flashcards" }
@@ -159,24 +159,26 @@
       "cancel": "Cancel"
     }
   },
-  "pizza": {
-    "title": "Pizza Info Support",
+  "visa": {
+    "title": "Visa & Residency Status Info",
     "featuredTitle": "Featured",
     "filterAll": "All",
-    "filterChain": "Chains",
-    "filterDelivery": "Delivery",
-    "filterParttime": "Part-time Jobs",
+    "filterType": "Residency Status",
+    "filterOffice": "Application Offices",
+    "filterSupport": "Support Organizations",
     "verified": "Verified",
     "pending": "Pending",
     "openUrl": "Open Official Site",
     "noResults": "No results found",
-    "disclaimer": "This app is not a party to any service. Information is for reference only.",
-    "shops": {
-      "pizza-hut":     { "name": "Pizza Hut",              "note": "Nationwide pizza chain. Online orders and takeout available. Wide menu selection." },
-      "dominos":       { "name": "Domino's Pizza",         "note": "Nationwide pizza delivery chain. Discounts available via app. 30-minute delivery guarantee." },
-      "uber-eats":     { "name": "Uber Eats",              "note": "Order pizza and a variety of food via the smartphone app." },
-      "demaecan":      { "name": "Demae-can",              "note": "Japan's largest delivery service. Order pizza and more from numerous restaurants." },
-      "pizza-hut-job": { "name": "Pizza Shop Part-time Jobs", "note": "Part-time job listings for pizza delivery and store staff. Foreigner-friendly positions available." }
+    "disclaimer": "This app does not act as a visa agent. Information is for reference only. Please confirm the latest details directly with each organization.",
+    "items": {
+      "specified-skilled":  { "name": "Specified Skilled Worker (特定技能)",      "note": "Visa for working in 14 industries including agriculture, manufacturing, and construction. Type 1 and Type 2 available. Requires passing an exam or completing Technical Intern Training Level 3." },
+      "student-visa":       { "name": "Student Visa (留学)",                      "note": "Visa for attending Japanese language schools, vocational schools, or universities. Apply after receiving school admission. Part-time work up to 28 hours/week permitted." },
+      "engineer-visa":      { "name": "Engineer / Humanities / International",    "note": "Visa for specialized work in IT, interpretation, trade, etc. Requires a university degree or relevant work experience." },
+      "immigration-agency": { "name": "Immigration Services Agency of Japan",     "note": "The official body for visa applications, residency status changes, and renewals. Regional offices nationwide. Check the official site for application forms." },
+      "tokyo-immigration":  { "name": "Tokyo Immigration Bureau",                 "note": "Handles applications for Tokyo, Kanagawa, Chiba, and Saitama. 7 min walk from Shinagawa Station. Advance appointment recommended. Tel: 0570-034259." },
+      "nepal-embassy":      { "name": "Embassy of Nepal in Japan",                "note": "Passport renewal and certificate issuance. Located in Shinagawa, Tokyo. Book consular services via the official website." },
+      "gyoseishoshi":       { "name": "Administrative Scrivener (Visa Support)",  "note": "Licensed professionals who prepare visa application documents. Available for complex cases and status change procedures." }
     }
   },
   "realestate": {
