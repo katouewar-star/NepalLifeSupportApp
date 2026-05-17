@@ -10,12 +10,13 @@ jest.mock('@/lib/supabase', () => ({
       signInWithPassword: jest.fn(),
       signOut: jest.fn(),
       getSession: jest.fn(),
+      resend: jest.fn(),
     },
   },
 }))
 
 import { supabase } from '@/lib/supabase'
-import { signUp, signIn, signOut, getCurrentSession } from '@/lib/auth'
+import { signUp, signIn, signOut, getCurrentSession, resendConfirmationEmail } from '@/lib/auth'
 
 const mockAuth = supabase.auth as jest.Mocked<typeof supabase.auth>
 
@@ -159,6 +160,38 @@ describe('認証サービス', () => {
 
       expect(result.error).toBeNull()
       expect(mockAuth.signOut).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('resendConfirmationEmail（確認メール再送）', () => {
+    it('正常に再送できること', async () => {
+      ;(mockAuth as any).resend.mockResolvedValueOnce({ error: null })
+
+      const result = await resendConfirmationEmail('test@example.com')
+
+      expect(result.error).toBeNull()
+      expect((mockAuth as any).resend).toHaveBeenCalledWith({
+        type: 'signup',
+        email: 'test@example.com',
+      })
+    })
+
+    it('Supabase がエラーを返した場合エラーを返すこと', async () => {
+      ;(mockAuth as any).resend.mockResolvedValueOnce({
+        error: { message: 'Too many requests' },
+      })
+
+      const result = await resendConfirmationEmail('test@example.com')
+
+      expect(result.error).not.toBeNull()
+    })
+
+    it('例外が発生した場合エラーを返すこと', async () => {
+      ;(mockAuth as any).resend.mockRejectedValueOnce(new Error('Network error'))
+
+      const result = await resendConfirmationEmail('test@example.com')
+
+      expect(result.error).not.toBeNull()
     })
   })
 

@@ -55,7 +55,13 @@
       "errorEmail": "メールアドレスを入力してください",
       "errorEmailFormat": "メールアドレスの形式が正しくありません",
       "errorPassword": "パスワードは{{min}}文字以上で入力してください",
-      "emailConfirmation": "確認メールを送信しました。メールを確認して登録を完了してください。"
+      "emailConfirmation": "確認メールを送信しました。メールを確認して登録を完了してください。",
+      "emailConfirmTitle": "メールを確認してください",
+      "emailConfirmDesc": "{{email}} に確認メールを送信しました。\nメール内のリンクをクリックして登録を完了してください。",
+      "resendButton": "確認メールを再送する",
+      "resendSuccess": "確認メールを再送しました",
+      "resendError": "再送に失敗しました。しばらく経ってからお試しください",
+      "backToLogin": "ログイン画面に戻る"
     }
   },
   "trash": {

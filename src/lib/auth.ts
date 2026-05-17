@@ -101,6 +101,16 @@ export async function signIn({ email, password }: SignInParams): Promise<AuthRes
   }
 }
 
+export async function resendConfirmationEmail(email: string): Promise<{ error: { message: string } | null }> {
+  try {
+    const { error } = await supabase.auth.resend({ type: 'signup', email })
+    if (error) return { error: { message: '再送信に失敗しました。しばらく経ってからお試しください' } }
+    return { error: null }
+  } catch (e) {
+    return { error: { message: '再送信に失敗しました。しばらく経ってからお試しください' } }
+  }
+}
+
 export async function signOut(): Promise<{ error: { message: string } | null }> {
   try {
     const { error } = await supabase.auth.signOut()

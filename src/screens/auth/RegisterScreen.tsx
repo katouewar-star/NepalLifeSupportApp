@@ -12,7 +12,7 @@ import {
 } from 'react-native'
 import { useRouter, Link } from 'expo-router'
 import { useTranslation } from 'react-i18next'
-import { signUp, PASSWORD_MIN_LENGTH } from '@/lib/auth'
+import { signUp, resendConfirmationEmail, PASSWORD_MIN_LENGTH } from '@/lib/auth'
 import { useAuthStore } from '@/stores/useAuthStore'
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -31,6 +31,8 @@ export default function RegisterScreen() {
   const [emailError, setEmailError] = useState('')
   const [passwordError, setPasswordError] = useState('')
   const [authError, setAuthError] = useState('')
+  const [pendingEmail, setPendingEmail] = useState('')
+  const [resendMessage, setResendMessage] = useState('')
 
   const validate = (): boolean => {
     let valid = true
@@ -51,13 +53,57 @@ export default function RegisterScreen() {
     try {
       const result = await signUp({ email, password, name, language })
       if (result.error) { setAuthError(result.error.message); return }
-      if (result.needsEmailConfirmation) { setAuthError(t('auth.register.emailConfirmation')); return }
+      if (result.needsEmailConfirmation) { setPendingEmail(email); return }
       if (result.user) setUser(result.user)
       if (result.session) setSession(result.session)
       router.replace('/(tabs)/')
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleResend = async () => {
+    setIsLoading(true)
+    setResendMessage('')
+    try {
+      const result = await resendConfirmationEmail(pendingEmail)
+      setResendMessage(result.error ? t('auth.register.resendError') : t('auth.register.resendSuccess'))
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  if (pendingEmail) {
+    return (
+      <View style={styles.container}>
+        <View style={[styles.formCard, { borderTopLeftRadius: 0, borderTopRightRadius: 0, justifyContent: 'center', flex: 1 }]}>
+          <Text style={[styles.title, { marginBottom: 12 }]}>{t('auth.register.emailConfirmTitle')}</Text>
+          <Text style={[styles.footerText, { textAlign: 'center', marginBottom: 24, lineHeight: 22 }]}>
+            {t('auth.register.emailConfirmDesc', { email: pendingEmail })}
+          </Text>
+
+          {resendMessage ? (
+            <View style={[styles.authErrorBox, resendMessage === t('auth.register.resendSuccess') && { backgroundColor: '#f0fff4', borderLeftColor: '#38a169' }]}>
+              <Text style={[styles.authErrorText, resendMessage === t('auth.register.resendSuccess') && { color: '#38a169' }]}>
+                {resendMessage}
+              </Text>
+            </View>
+          ) : null}
+
+          {isLoading ? (
+            <ActivityIndicator style={styles.loader} color={RED} />
+          ) : (
+            <TouchableOpacity style={styles.button} onPress={handleResend} activeOpacity={0.85}>
+              <Text style={styles.buttonText}>{t('auth.register.resendButton')}</Text>
+            </TouchableOpacity>
+          )}
+
+          <TouchableOpacity style={{ marginTop: 16, alignItems: 'center' }} onPress={() => router.replace('/(auth)/login')}>
+            <Text style={styles.link}>{t('auth.register.backToLogin')}</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    )
   }
 
   return (

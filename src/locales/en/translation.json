@@ -55,7 +55,13 @@
       "errorEmail": "Please enter your email",
       "errorEmailFormat": "Invalid email format",
       "errorPassword": "Password must be at least {{min}} characters",
-      "emailConfirmation": "Confirmation email sent. Please check your email to complete registration."
+      "emailConfirmation": "Confirmation email sent. Please check your email to complete registration.",
+      "emailConfirmTitle": "Check your email",
+      "emailConfirmDesc": "A confirmation email has been sent to {{email}}.\nClick the link in the email to complete registration.",
+      "resendButton": "Resend confirmation email",
+      "resendSuccess": "Confirmation email resent",
+      "resendError": "Failed to resend. Please try again later",
+      "backToLogin": "Back to login"
     }
   },
   "trash": {
