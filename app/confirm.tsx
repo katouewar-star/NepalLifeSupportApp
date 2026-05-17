@@ -13,15 +13,26 @@ export default function ConfirmPage() {
       return
     }
 
-    supabase.auth.exchangeCodeForSession(window.location.href)
-      .then(({ error }) => {
-        if (error) {
-          setStatus('error')
-        } else {
-          setStatus('success')
-          setTimeout(() => router.replace('/(tabs)/'), 1500)
-        }
-      })
+    // detectSessionInUrl: true により Supabase が自動でコードを処理するので
+    // onAuthStateChange で結果を待つ
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_IN') {
+        setStatus('success')
+        setTimeout(() => router.replace('/(tabs)/'), 1500)
+      } else if (event === 'SIGNED_OUT') {
+        setStatus('error')
+      }
+    })
+
+    // 5秒でタイムアウト（イベントが来ない場合）
+    const timeout = setTimeout(() => {
+      setStatus('error')
+    }, 5000)
+
+    return () => {
+      subscription.unsubscribe()
+      clearTimeout(timeout)
+    }
   }, [])
 
   return (
