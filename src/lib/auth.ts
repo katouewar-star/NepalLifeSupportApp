@@ -49,7 +49,10 @@ export async function signUp({ email, password, name, language }: SignUpParams):
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { name: trimmedName, language } },
+      options: {
+        data: { name: trimmedName, language },
+        emailRedirectTo: 'https://nepal-life-support-app.vercel.app/confirm',
+      },
     })
 
     if (error) {

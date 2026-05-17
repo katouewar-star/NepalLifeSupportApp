@@ -46,8 +46,32 @@ describe('認証サービス', () => {
       expect(mockAuth.signUp).toHaveBeenCalledWith({
         email: 'test@example.com',
         password: 'password123',
-        options: { data: { name: 'テストユーザー', language: 'ne' } },
+        options: {
+          data: { name: 'テストユーザー', language: 'ne' },
+          emailRedirectTo: 'https://nepal-life-support-app.vercel.app/confirm',
+        },
       })
+    })
+
+    it('メール確認が必要な場合 needsEmailConfirmation が true になること', async () => {
+      mockAuth.signUp.mockResolvedValueOnce({
+        data: {
+          user: { id: 'user-1', email: 'test@example.com' },
+          session: null, // セッションなし = メール確認待ち
+        },
+        error: null,
+      } as any)
+
+      const result = await signUp({
+        email: 'test@example.com',
+        password: 'password123',
+        name: 'テストユーザー',
+        language: 'ne',
+      })
+
+      expect(result.error).toBeNull()
+      expect(result.needsEmailConfirmation).toBe(true)
+      expect(result.session).toBeNull()
     })
 
     it('メールアドレスが既に使用中の場合エラーを返すこと', async () => {
