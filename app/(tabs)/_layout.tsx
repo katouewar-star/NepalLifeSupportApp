@@ -48,6 +48,7 @@ export default function TabsLayout() {
         options={{
           title: t('tabs.train'),
           tabBarIcon: () => <TabIcon label="🚃" />,
+          href: null,
         }}
       />
       <Tabs.Screen
@@ -76,6 +77,7 @@ export default function TabsLayout() {
         options={{
           title: t('tabs.trash'),
           tabBarIcon: () => <TabIcon label="🗑️" />,
+          href: null,
         }}
       />
       <Tabs.Screen

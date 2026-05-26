@@ -32,7 +32,7 @@ interface AuthStore {
 export const useAuthStore = create<AuthStore>((set) => ({
   user: null,
   session: null,
-  isLoading: false,
+  isLoading: true,
   error: null,
   language: 'ne',
   isAuthenticated: false,

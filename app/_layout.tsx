@@ -2,30 +2,21 @@ import { useEffect } from 'react'
 import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { useAuthStore } from '@/stores/useAuthStore'
-import { getCurrentSession } from '@/lib/auth'
 import { supabase } from '@/lib/supabase'
 import { initI18n } from '@/lib/i18n'
 
 initI18n(useAuthStore.getState().language)
 
 export default function RootLayout() {
-  const { setUser, setSession, signOut } = useAuthStore()
+  const { setUser, setSession, setLoading, signOut } = useAuthStore()
 
   useEffect(() => {
-    // 起動時にセッション復元
-    getCurrentSession().then(({ session }) => {
-      if (!session) return
-      setSession(session)
-    })
-
-    // Auth 状態変化を監視
+    // Auth 状態変化を監視（INITIAL_SESSION で起動時セッションも復元される）
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (event === 'SIGNED_OUT' || !session) {
           signOut()
-          return
-        }
-        if (session) {
+        } else {
           setSession({
             accessToken: session.access_token,
             refreshToken: session.refresh_token,
@@ -37,6 +28,8 @@ export default function RootLayout() {
             name: user.user_metadata?.name ?? '',
           })
         }
+        // 初回イベント処理後にローディング解除
+        setLoading(false)
       }
     )
 

@@ -8,15 +8,12 @@ import LanguageToggle from '@/components/LanguageToggle'
 
 const FEATURE_COLORS = [
   '#2980B9', // translation
-  '#8E44AD', // train
   '#E63946', // job
   '#1B4F72', // school
   '#16A085', // realestate
-  '#27AE60', // trash
   '#E67E22', // community
   '#C0392B', // visa
   '#2471A3', // survey
-  '#1A5276', // chatbot
   '#117A65', // study
 ]
 
@@ -27,15 +24,12 @@ export default function HomeScreen() {
 
   const FEATURES = useMemo(() => [
     { label: t('home.features.translation.label'), icon: '🌐', route: '/(tabs)/translation', desc: t('home.features.translation.desc') },
-    { label: t('home.features.train.label'),       icon: '🚃', route: '/(tabs)/train',       desc: t('home.features.train.desc') },
     { label: t('home.features.job.label'),         icon: '💼', route: '/(tabs)/job',         desc: t('home.features.job.desc') },
     { label: t('home.features.school.label'),      icon: '🎓', route: '/(tabs)/school',      desc: t('home.features.school.desc') },
     { label: t('home.features.realestate.label'), icon: '🏡', route: '/(tabs)/realestate',  desc: t('home.features.realestate.desc') },
-    { label: t('home.features.trash.label'),       icon: '🗑️', route: '/(tabs)/trash',       desc: t('home.features.trash.desc') },
     { label: t('home.features.community.label'),   icon: '💬', route: '/(tabs)/community',   desc: t('home.features.community.desc') },
     { label: t('home.features.visa.label'),        icon: '🛂', route: '/(tabs)/visa',        desc: t('home.features.visa.desc') },
     { label: t('home.features.survey.label'),      icon: '📋', route: '/(tabs)/survey',      desc: t('home.features.survey.desc') },
-    { label: t('home.features.chatbot.label'),     icon: '🤖', route: '/chatbot',            desc: t('home.features.chatbot.desc') },
     { label: t('home.features.study.label'),       icon: '📚', route: '/study',              desc: t('home.features.study.desc') },
   ], [t])
 
