@@ -101,6 +101,13 @@ export default function TabsLayout() {
           tabBarIcon: () => <TabIcon label="📋" />,
         }}
       />
+      <Tabs.Screen
+        name="travel"
+        options={{
+          title: t('tabs.travel'),
+          tabBarIcon: () => <TabIcon label="✈️" />,
+        }}
+      />
     </Tabs>
   )
 }

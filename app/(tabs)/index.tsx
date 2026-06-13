@@ -15,6 +15,7 @@ const FEATURE_COLORS = [
   '#C0392B', // visa
   '#2471A3', // survey
   '#117A65', // study
+  '#1E3A5F', // travel
 ]
 
 export default function HomeScreen() {
@@ -31,6 +32,7 @@ export default function HomeScreen() {
     { label: t('home.features.visa.label'),        icon: '🛂', route: '/(tabs)/visa',        desc: t('home.features.visa.desc') },
     { label: t('home.features.survey.label'),      icon: '📋', route: '/(tabs)/survey',      desc: t('home.features.survey.desc') },
     { label: t('home.features.study.label'),       icon: '📚', route: '/study',              desc: t('home.features.study.desc') },
+    { label: t('home.features.travel.label'),      icon: '✈️', route: '/(tabs)/travel',      desc: t('home.features.travel.desc') },
   ], [t])
 
   const handleSignOut = async () => {

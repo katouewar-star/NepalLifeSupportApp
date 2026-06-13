@@ -9,7 +9,8 @@
     "trash": "Trash",
     "community": "Community",
     "visa": "Visa",
-    "survey": "Survey"
+    "survey": "Survey",
+    "travel": "Travel"
   },
   "home": {
     "appName": "🇳🇵 Nepal Life Support",
@@ -29,7 +30,8 @@
       "visa":   { "label": "Visa Info",  "desc": "Residency status, offices & support" },
       "survey":   { "label": "Survey",       "desc": "Help us improve the app" },
       "chatbot":  { "label": "AI Chat",     "desc": "Ask anything, anytime" },
-      "study":    { "label": "Language Study", "desc": "Nepali–Japanese flashcards" }
+      "study":    { "label": "Language Study", "desc": "Nepali–Japanese flashcards" },
+      "travel":   { "label": "Travel Guide", "desc": "Explore Japan's best spots" }
     }
   },
   "auth": {
@@ -225,6 +227,152 @@
       "suumo": {
         "name": "SUUMO",
         "note": "Japan's largest real estate information site. Covers rentals, sales, and new construction nationwide."
+      }
+    }
+  },
+  "travel": {
+    "title": "Japan Travel Guide",
+    "subtitle": "Explore the Beauty of Japan",
+    "featured": "Featured",
+    "filterAll": "All",
+    "filterCity": "Cities",
+    "filterNature": "Nature",
+    "filterCulture": "Culture",
+    "filterFood": "Food",
+    "seasonLabel": "Best Seasons",
+    "costLabel": "Budget",
+    "durationLabel": "Duration",
+    "fromTokyoLabel": "From Tokyo",
+    "highlightsLabel": "Highlights",
+    "aboutLabel": "About",
+    "tipsLabel": "Tips for Nepali Travelers",
+    "close": "Back",
+    "explore": "Explore",
+    "disclaimer": "Information is for reference only. Please verify details before traveling.",
+    "season": {
+      "spring": "Spring 🌸",
+      "summer": "Summer ☀️",
+      "autumn": "Autumn 🍂",
+      "winter": "Winter ❄️"
+    },
+    "cost": {
+      "1": "💴 Budget",
+      "2": "💴💴 Moderate",
+      "3": "💴💴💴 Splurge"
+    },
+    "duration": {
+      "one": "1 Day",
+      "oneTwo": "1–2 Days",
+      "twoThree": "2–3 Days",
+      "threeFour": "3–4 Days",
+      "threeFive": "3–5 Days"
+    },
+    "access": {
+      "local": "Within Tokyo",
+      "shinkansen215": "Shinkansen ~2h 15m",
+      "shinkansen230": "Shinkansen ~2h 30m",
+      "shinkansen240": "Shinkansen ~4h",
+      "shinkansen300": "Shinkansen ~3h",
+      "plane90": "Plane ~1h 30m",
+      "plane150": "Plane ~2h 30m",
+      "train90": "Train ~1h 30m"
+    },
+    "destinations": {
+      "tokyo": {
+        "name": "Tokyo",
+        "prefecture": "Tokyo",
+        "desc": "Japan's capital and largest city. A dazzling mix of cutting-edge tech, ancient temples, world-class dining, and endless entertainment.",
+        "tips": "Nepali restaurants and grocery stores are found in Shinjuku and Ikebukuro. Get an IC card (Suica/Pasmo) for easy transit.",
+        "highlights": {
+          "shinjuku": "Shinjuku — Shopping & Nightlife",
+          "asakusa": "Asakusa — Historic Senso-ji Temple",
+          "shibuya": "Shibuya — World's Busiest Crossing",
+          "akihabara": "Akihabara — Electronics & Anime"
+        }
+      },
+      "kyoto": {
+        "name": "Kyoto",
+        "prefecture": "Kyoto",
+        "desc": "Japan's ancient capital. Over 1,000 years of history with magnificent temples, geisha culture, traditional gardens, and bamboo forests.",
+        "tips": "Most beautiful during cherry blossom season (Mar–Apr) and autumn foliage (Nov). Book accommodations well in advance.",
+        "highlights": {
+          "fushimi": "Fushimi Inari — Thousands of Torii Gates",
+          "kinkakuji": "Kinkaku-ji — The Golden Pavilion",
+          "arashiyama": "Arashiyama — Bamboo Grove",
+          "gion": "Gion — Geisha District"
+        }
+      },
+      "osaka": {
+        "name": "Osaka",
+        "prefecture": "Osaka",
+        "desc": "Japan's food capital! Try takoyaki, okonomiyaki, and kushikatsu. Experience the vibrant nightlife of Dotonbori.",
+        "tips": "Meals are generally cheaper than Tokyo and incredibly tasty. Great base for day trips to Kyoto and Nara.",
+        "highlights": {
+          "dotonbori": "Dotonbori — Neon Lights & Street Food",
+          "castle": "Osaka Castle — Historic Landmark",
+          "kuromon": "Kuromon Market — Fresh Seafood",
+          "namba": "Namba — Shopping & Entertainment"
+        }
+      },
+      "hokkaido": {
+        "name": "Hokkaido",
+        "prefecture": "Hokkaido",
+        "desc": "Japan's northernmost major island. Vast nature, fresh produce, and world-class ski resorts. Lavender fields in summer, snow festivals in winter.",
+        "tips": "Niseko is a favorite among Nepali skiers. Don't miss Hokkaido ramen and fresh butter corn.",
+        "highlights": {
+          "sapporo": "Sapporo — Snow Festival & Beer Museum",
+          "furano": "Furano — Lavender Fields (July)",
+          "otaru": "Otaru — Scenic Canal & Seafood",
+          "niseko": "Niseko — World-Class Ski Resort"
+        }
+      },
+      "fuji": {
+        "name": "Mt. Fuji",
+        "prefecture": "Shizuoka / Yamanashi",
+        "desc": "Japan's iconic symbol, a 3,776m active volcano. Climbable July–August. Enjoy stunning views and hot springs in nearby Hakone.",
+        "tips": "Relatively manageable for Nepali mountain trekkers. Climbing starts at the 5th Station. Don't skip the Hakone onsen experience!",
+        "highlights": {
+          "climb": "Mt. Fuji Climb — July–August Only",
+          "hakone": "Hakone — Onsen & Mountain Views",
+          "kawaguchiko": "Lake Kawaguchiko — Fuji Reflection",
+          "onsen": "Onsen — Natural Hot Spring Baths"
+        }
+      },
+      "nara": {
+        "name": "Nara",
+        "prefecture": "Nara",
+        "desc": "Japan's first permanent capital. Famous for friendly wild deer and the massive Todai-ji temple. Perfect for a day trip from Kyoto or Osaka.",
+        "tips": "Buy shika-senbei (deer crackers) and feed the deer! You can cover all major spots in a single day.",
+        "highlights": {
+          "deer": "Nara Park — Freely Roaming Deer",
+          "todaiji": "Todai-ji — Giant Bronze Buddha",
+          "kasuga": "Kasuga-Taisha — Thousands of Stone Lanterns",
+          "naramachi": "Naramachi — Historic Merchant District"
+        }
+      },
+      "hiroshima": {
+        "name": "Hiroshima",
+        "prefecture": "Hiroshima",
+        "desc": "A symbol of peace and resilience. UNESCO Peace Memorial Park and the iconic floating torii gate of Miyajima Island.",
+        "tips": "The Peace Memorial Museum is a moving and essential visit. Try Hiroshima-style okonomiyaki — layered differently from Tokyo!",
+        "highlights": {
+          "peace": "Peace Memorial Park — UNESCO Site",
+          "miyajima": "Miyajima Island — Floating Torii Gate",
+          "okonomiyaki": "Hiroshima Okonomiyaki — Layered Style",
+          "itsukushima": "Itsukushima Shrine — Over the Sea"
+        }
+      },
+      "okinawa": {
+        "name": "Okinawa",
+        "prefecture": "Okinawa",
+        "desc": "Japan's southernmost tropical island group. Crystal-clear emerald waters, colorful coral reefs, and the unique Ryukyu Kingdom culture.",
+        "tips": "Avoid the rainy season (May–Jun). Must-try: fresh seafood and Okinawa soba. Don't forget sunscreen!",
+        "highlights": {
+          "beach": "Crystal-Clear Beaches",
+          "snorkel": "Snorkeling & Scuba Diving",
+          "ryukyu": "Ryukyu Village — Traditional Culture",
+          "churaumi": "Churaumi Aquarium — Whale Sharks"
+        }
       }
     }
   }

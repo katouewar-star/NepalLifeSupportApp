@@ -55,6 +55,16 @@ export function buildTranslationPrompt(text: string, direction: TranslationDirec
   return { system, user: text }
 }
 
+function calcMaxTokens(text: string): number {
+  // 日本語・ネパール語は1文字あたり約1〜2トークン
+  // 翻訳結果は入力と同程度の長さになるため、入力長に応じて動的に設定
+  const len = text.length
+  if (len <= 200)  return 500
+  if (len <= 500)  return 800
+  if (len <= 1000) return 1200
+  return 2000
+}
+
 export async function translate({ text, direction }: TranslationParams): Promise<TranslationResult> {
   if (!text.trim()) {
     return { translatedText: null, error: { message: 'テキストを入力してください' } }
@@ -73,7 +83,7 @@ export async function translate({ text, direction }: TranslationParams): Promise
         { role: 'system', content: system },
         { role: 'user', content: user },
       ],
-      max_tokens: 1000,
+      max_tokens: calcMaxTokens(text),
       temperature: 0.3,
     })
 
