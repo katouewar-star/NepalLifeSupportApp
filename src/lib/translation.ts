@@ -67,8 +67,15 @@ function calcMaxTokens(text: string): number {
 
 const RETRY_DELAYS_MS = [1500, 4000] // 1回目: 1.5秒後, 2回目: 4秒後
 
-function isRateLimitError(e: unknown): boolean {
+function isQuotaError(e: unknown): boolean {
   if (!(e instanceof Error)) return false
+  const lower = e.message.toLowerCase()
+  return lower.includes('quota') || lower.includes('billing') || lower.includes('insufficient')
+}
+
+function isRetryableRateLimitError(e: unknown): boolean {
+  if (!(e instanceof Error)) return false
+  if (isQuotaError(e)) return false // クォータ枯渇はリトライ不要
   const lower = e.message.toLowerCase()
   return lower.includes('429') || lower.includes('rate limit')
 }
@@ -91,7 +98,7 @@ async function callWithRetry(
       return response.choices[0]?.message?.content?.trim() ?? ''
     } catch (e) {
       lastError = e
-      if (attempt < RETRY_DELAYS_MS.length && isRateLimitError(e)) {
+      if (attempt < RETRY_DELAYS_MS.length && isRetryableRateLimitError(e)) {
         await new Promise((r) => setTimeout(r, RETRY_DELAYS_MS[attempt]))
         continue
       }
@@ -149,6 +156,10 @@ function resolveErrorMessage(raw: string): string {
   }
   if (lower.includes('401') || lower.includes('unauthorized') || lower.includes('api key')) {
     return 'APIキーが正しくありません'
+  }
+  // クォータ枯渇（残高不足）は rate limit より先に判定する
+  if (lower.includes('quota') || lower.includes('billing') || lower.includes('insufficient')) {
+    return 'APIの利用枠が上限に達しています。OpenAIアカウントの残高をご確認ください'
   }
   if (lower.includes('429') || lower.includes('rate limit')) {
     return 'リクエストが多すぎます。しばらくお待ちください'
