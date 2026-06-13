@@ -98,13 +98,64 @@
     "telLabel": "Phone",
     "disclaimer": "This app is not a party to employment contracts. Information is for reference only.",
     "noResults": "No agencies found matching the selected filter",
+    "detailSummaryLabel": "About",
+    "detailStepsLabel": "How to Use",
+    "detailContactLabel": "Contact",
+    "detailPermitLabel": "Permit No.",
+    "detailSupportLabel": "Support No.",
+    "detailBack": "Back",
     "agencies": {
-      "tokyo-foreigner": { "name": "Tokyo Foreign Workers Employment Service Center", "note": "Public agency. Free job referral and career consultation." },
-      "lead-to-japan": { "name": "Lead to JAPAN Co., Ltd.", "note": "Paid job placement & registered support agency. Confirm fees individually." },
-      "sherpa": { "name": "Sherpa Co., Ltd.", "note": "Nepali language support available. Registration number verified." },
-      "sapna":      { "name": "SAPNA",                            "note": "Registration number under review. Check for updates after listing." },
-      "hello-work": { "name": "Hello Work (Public Employment Office)", "note": "Free job placement and career support nationwide. Foreign resident support desks available." },
-      "indeed-jp":  { "name": "Indeed Japan",                    "note": "World's largest job site. Japanese and English support. Many foreigner-welcome listings." }
+      "tokyo-foreigner": {
+        "name": "Tokyo Foreign Workers Employment Service Center",
+        "note": "Public agency. Free job referral and career consultation.",
+        "summary": "A free employment support center for foreign workers operated by the Ministry of Health, Labour and Welfare. Nepali interpreters available. Free job consultation, referral, and resume support for all visa types.",
+        "step1": "Call or book a visit (03-5339-8626)",
+        "step2": "Free career consultation with an advisor",
+        "step3": "Job referral matched to your visa type",
+        "step4": "Post-employment follow-up support"
+      },
+      "lead-to-japan": {
+        "name": "Lead to JAPAN Co., Ltd.",
+        "note": "Paid job placement & registered support agency. Confirm fees individually.",
+        "summary": "A licensed paid placement and registered support agency specializing in Specified Skilled Worker (特定技能) and Engineer/Humanities (技人国) visas. Permit number verified. Nepali-speaking staff available. End-to-end support from skills test prep to post-employment follow-up.",
+        "step1": "Book a free consultation on the official site",
+        "step2": "Skills and visa status assessment",
+        "step3": "Company matching and interview arrangement",
+        "step4": "Visa application and registration support"
+      },
+      "sherpa": {
+        "name": "Sherpa Co., Ltd.",
+        "note": "Nepali language support available. Registration number verified.",
+        "summary": "A registered support agency with Nepali language service. Provides employment and life support for Specified Skilled Worker and Student visa holders. Also supports transition from Technical Intern Training to Specified Skilled Worker.",
+        "step1": "Fill out the contact form on the official site",
+        "step2": "Counseling in Nepali language",
+        "step3": "Skills test preparation support",
+        "step4": "Job matching and visa procedures"
+      },
+      "sapna": {
+        "name": "SAPNA",
+        "note": "Registration number under review. Check for updates after listing.",
+        "summary": "Registration number currently under review. Please check the official site for the latest details. Active as a Nepali-friendly staffing and registered support agency.",
+        "step1": "Check the official site for latest information",
+        "step2": "Contact via the inquiry form"
+      },
+      "hello-work": {
+        "name": "Hello Work (Public Employment Office)",
+        "note": "Free job placement and career support nationwide. Foreign resident support desks available.",
+        "summary": "Japan's free national public employment service operated by the Ministry of Health, Labour and Welfare. Foreign resident support desks available nationwide. Handles job search, vocational training, and unemployment insurance.",
+        "step1": "Find your nearest Hello Work office (official site)",
+        "step2": "Register as a job seeker on your first visit",
+        "step3": "Job search and career consultation",
+        "step4": "Application support and job placement"
+      },
+      "indeed-jp": {
+        "name": "Indeed Japan",
+        "note": "World's largest job site. Japanese and English support. Many foreigner-welcome listings.",
+        "summary": "The world's largest job search engine. Japanese and English support. Free to search and apply. Many foreigner-welcome and visa-flexible listings across Japan.",
+        "step1": "Create a free account",
+        "step2": "Search jobs by keyword and conditions",
+        "step3": "Apply directly to companies"
+      }
     }
   },
   "school": {

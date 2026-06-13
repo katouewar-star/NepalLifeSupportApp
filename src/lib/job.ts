@@ -13,6 +13,7 @@ export interface JobAgency {
   supportNumber?: string
   isVerified: boolean
   verifiedAt: string
+  stepCount: number
 }
 
 export const JOB_AGENCIES: JobAgency[] = [
@@ -26,6 +27,7 @@ export const JOB_AGENCIES: JobAgency[] = [
     hours: '平日 9:30〜17:15',
     isVerified: true,
     verifiedAt: '2024-12-01',
+    stepCount: 4,
   },
   {
     id: 'lead-to-japan',
@@ -37,6 +39,7 @@ export const JOB_AGENCIES: JobAgency[] = [
     supportNumber: '19登-000250',
     isVerified: true,
     verifiedAt: '2024-11-15',
+    stepCount: 4,
   },
   {
     id: 'sherpa',
@@ -47,6 +50,7 @@ export const JOB_AGENCIES: JobAgency[] = [
     supportNumber: '20登-001234',
     isVerified: true,
     verifiedAt: '2024-10-20',
+    stepCount: 4,
   },
   {
     id: 'sapna',
@@ -56,6 +60,7 @@ export const JOB_AGENCIES: JobAgency[] = [
     url: 'https://sapna.jp/',
     isVerified: false,
     verifiedAt: '2024-09-01',
+    stepCount: 2,
   },
   {
     id: 'hello-work',
@@ -67,6 +72,7 @@ export const JOB_AGENCIES: JobAgency[] = [
     hours: '平日 8:30〜17:15',
     isVerified: true,
     verifiedAt: '2025-01-01',
+    stepCount: 4,
   },
   {
     id: 'indeed-jp',
@@ -76,6 +82,7 @@ export const JOB_AGENCIES: JobAgency[] = [
     url: 'https://jp.indeed.com/',
     isVerified: true,
     verifiedAt: '2025-01-01',
+    stepCount: 3,
   },
 ]
 
