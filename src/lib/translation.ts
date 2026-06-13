@@ -65,6 +65,43 @@ function calcMaxTokens(text: string): number {
   return 2000
 }
 
+const RETRY_DELAYS_MS = [1500, 4000] // 1回目: 1.5秒後, 2回目: 4秒後
+
+function isRateLimitError(e: unknown): boolean {
+  if (!(e instanceof Error)) return false
+  const lower = e.message.toLowerCase()
+  return lower.includes('429') || lower.includes('rate limit')
+}
+
+async function callWithRetry(
+  client: OpenAI,
+  messages: { role: 'system' | 'user'; content: string }[],
+  maxTokens: number
+): Promise<string> {
+  let lastError: unknown
+
+  for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt++) {
+    try {
+      const response = await client.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages,
+        max_tokens: maxTokens,
+        temperature: 0.3,
+      })
+      return response.choices[0]?.message?.content?.trim() ?? ''
+    } catch (e) {
+      lastError = e
+      if (attempt < RETRY_DELAYS_MS.length && isRateLimitError(e)) {
+        await new Promise((r) => setTimeout(r, RETRY_DELAYS_MS[attempt]))
+        continue
+      }
+      break
+    }
+  }
+
+  throw lastError
+}
+
 export async function translate({ text, direction }: TranslationParams): Promise<TranslationResult> {
   if (!text.trim()) {
     return { translatedText: null, error: { message: 'テキストを入力してください' } }
@@ -77,17 +114,14 @@ export async function translate({ text, direction }: TranslationParams): Promise
     const client = getClient()
     const { system, user } = buildTranslationPrompt(text, direction)
 
-    const response = await client.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
+    const translated = await callWithRetry(
+      client,
+      [
         { role: 'system', content: system },
         { role: 'user', content: user },
       ],
-      max_tokens: calcMaxTokens(text),
-      temperature: 0.3,
-    })
-
-    const translated = response.choices[0]?.message?.content?.trim()
+      calcMaxTokens(text)
+    )
 
     if (!translated) {
       return { translatedText: null, error: { message: '翻訳結果が取得できませんでした' } }
