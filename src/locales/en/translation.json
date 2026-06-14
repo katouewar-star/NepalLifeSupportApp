@@ -299,6 +299,7 @@
     "tipsLabel": "Tips for Nepali Travelers",
     "close": "Back",
     "explore": "Explore",
+    "planLabel": "Sample Itinerary",
     "disclaimer": "Information is for reference only. Please verify details before traveling.",
     "season": {
       "spring": "Spring 🌸",
@@ -334,6 +335,12 @@
         "prefecture": "Tokyo",
         "desc": "Japan's capital and largest city. A dazzling mix of cutting-edge tech, ancient temples, world-class dining, and endless entertainment.",
         "tips": "Nepali restaurants and grocery stores are found in Shinjuku and Ikebukuro. Get an IC card (Suica/Pasmo) for easy transit.",
+        "plan": {
+          "title": "3-Day Sample Itinerary",
+          "day1": "Meiji Shrine (1.5h) → Harajuku / Takeshita Street → Shibuya Scramble Crossing → Shinjuku / Metropolitan Gov't Bldg (free view)",
+          "day2": "Asakusa / Senso-ji Temple (1.5h) → Sumida River Cruise (45min) → Odaiba → Akihabara",
+          "day3": "Ueno Park / Tokyo National Museum → Ginza Shopping → Tokyo Tower night view"
+        },
         "highlights": {
           "shinjuku": "Shinjuku — Shopping & Nightlife",
           "asakusa": "Asakusa — Historic Senso-ji Temple",
@@ -346,6 +353,12 @@
         "prefecture": "Kyoto",
         "desc": "Japan's ancient capital. Over 1,000 years of history with magnificent temples, geisha culture, traditional gardens, and bamboo forests.",
         "tips": "Most beautiful during cherry blossom season (Mar–Apr) and autumn foliage (Nov). Book accommodations well in advance.",
+        "plan": {
+          "title": "3-Day Sample Itinerary",
+          "day1": "Kiyomizu-dera Temple (1.5h) → Higashiyama / Ninenzaka & Sannenzaka → Philosopher's Path → Gion / Pontocho for dinner",
+          "day2": "Arashiyama Bamboo Grove (1.5h) → Tenryu-ji Temple → Kinkaku-ji Golden Pavilion (1h) → Ryoan-ji Rock Garden",
+          "day3": "Fushimi Inari Shrine / Thousand Torii Gates (early morning) → Nishiki Market → Nijo Castle (UNESCO)"
+        },
         "highlights": {
           "fushimi": "Fushimi Inari — Thousands of Torii Gates",
           "kinkakuji": "Kinkaku-ji — The Golden Pavilion",
@@ -358,6 +371,11 @@
         "prefecture": "Osaka",
         "desc": "Japan's food capital! Try takoyaki, okonomiyaki, and kushikatsu. Experience the vibrant nightlife of Dotonbori.",
         "tips": "Meals are generally cheaper than Tokyo and incredibly tasty. Great base for day trips to Kyoto and Nara.",
+        "plan": {
+          "title": "2-Day Sample Itinerary",
+          "day1": "Osaka Castle (2h) → Shinsekai / Tsutenkaku Tower (1.5h) → Dotonbori evening street food (takoyaki, kushikatsu)",
+          "day2": "Kuromon Market breakfast (fresh seafood) → Umeda Sky Building observation deck → Shinsaibashi shopping → departure"
+        },
         "highlights": {
           "dotonbori": "Dotonbori — Neon Lights & Street Food",
           "castle": "Osaka Castle — Historic Landmark",
@@ -370,6 +388,12 @@
         "prefecture": "Hokkaido",
         "desc": "Japan's northernmost major island. Vast nature, fresh produce, and world-class ski resorts. Lavender fields in summer, snow festivals in winter.",
         "tips": "Niseko is a favorite among Nepali skiers. Don't miss Hokkaido ramen and fresh butter corn.",
+        "plan": {
+          "title": "3-4 Day Sample Itinerary",
+          "day1": "Arrive Sapporo → Odori Park (1h) → Clock Tower (30min) → Susukino Ramen Alley for dinner",
+          "day2": "Furano lavender fields (summer, 3h) or Niseko ski resort (winter, full day) → Biei rolling hills drive",
+          "day3": "Otaru Canal (2h) → Otaru Market fresh seafood lunch → Yoichi Whisky Distillery tour"
+        },
         "highlights": {
           "sapporo": "Sapporo — Snow Festival & Beer Museum",
           "furano": "Furano — Lavender Fields (July)",
@@ -382,6 +406,10 @@
         "prefecture": "Shizuoka / Yamanashi",
         "desc": "Japan's iconic symbol, a 3,776m active volcano. Climbable July–August. Enjoy stunning views and hot springs in nearby Hakone.",
         "tips": "Relatively manageable for Nepali mountain trekkers. Climbing starts at the 5th Station. Don't skip the Hakone onsen experience!",
+        "plan": {
+          "title": "1-2 Day Sample Itinerary",
+          "day1": "Lake Kawaguchiko viewpoint (early morning Mt. Fuji reflection) → Fuji 5th Station (2h, climbing Jul–Aug only) → Hakone / Owakudani → Onsen ryokan"
+        },
         "highlights": {
           "climb": "Mt. Fuji Climb — July–August Only",
           "hakone": "Hakone — Onsen & Mountain Views",
@@ -394,6 +422,10 @@
         "prefecture": "Nara",
         "desc": "Japan's first permanent capital. Famous for friendly wild deer and the massive Todai-ji temple. Perfect for a day trip from Kyoto or Osaka.",
         "tips": "Buy shika-senbei (deer crackers) and feed the deer! You can cover all major spots in a single day.",
+        "plan": {
+          "title": "Day Trip Itinerary",
+          "day1": "Kintetsu Nara Station → Todai-ji / Great Buddha (1.5h) → Nara Park deer feeding (1h) → Kasuga-Taisha Shrine (1h) → Naramachi stroll → Return to Kyoto/Osaka"
+        },
         "highlights": {
           "deer": "Nara Park — Freely Roaming Deer",
           "todaiji": "Todai-ji — Giant Bronze Buddha",
@@ -406,6 +438,11 @@
         "prefecture": "Hiroshima",
         "desc": "A symbol of peace and resilience. UNESCO Peace Memorial Park and the iconic floating torii gate of Miyajima Island.",
         "tips": "The Peace Memorial Museum is a moving and essential visit. Try Hiroshima-style okonomiyaki — layered differently from Tokyo!",
+        "plan": {
+          "title": "2-Day Sample Itinerary",
+          "day1": "Peace Memorial Park / Atomic Bomb Dome (2h) → Peace Memorial Museum (1.5h) → Hiroshima okonomiyaki lunch → Hiroshima Castle (1h)",
+          "day2": "Miyajima Island / Itsukushima Shrine & floating torii (3h) → local momiji manju dessert → Mt. Misen cable car views"
+        },
         "highlights": {
           "peace": "Peace Memorial Park — UNESCO Site",
           "miyajima": "Miyajima Island — Floating Torii Gate",
@@ -418,6 +455,11 @@
         "prefecture": "Okinawa",
         "desc": "Japan's southernmost tropical island group. Crystal-clear emerald waters, colorful coral reefs, and the unique Ryukyu Kingdom culture.",
         "tips": "Avoid the rainy season (May–Jun). Must-try: fresh seafood and Okinawa soba. Don't forget sunscreen!",
+        "plan": {
+          "title": "2-3 Day Sample Itinerary",
+          "day1": "Shurijo Castle / Ryukyu culture (2h) → Kokusai-dori International Street shopping → Okinawan dinner (goya champuru)",
+          "day2": "Churaumi Aquarium whale sharks (3h) → Kouri Island blue heart rock (2h) → snorkeling experience"
+        },
         "highlights": {
           "beach": "Crystal-Clear Beaches",
           "snorkel": "Snorkeling & Scuba Diving",

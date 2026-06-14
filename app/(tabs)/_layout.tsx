@@ -71,6 +71,7 @@ export default function TabsLayout() {
         options={{
           title: t('tabs.realestate'),
           tabBarIcon: () => <TabIcon label="🏡" />,
+          href: null,
         }}
       />
       <Tabs.Screen
@@ -86,6 +87,7 @@ export default function TabsLayout() {
         options={{
           title: t('tabs.community'),
           tabBarIcon: () => <TabIcon label="💬" />,
+          href: null,
         }}
       />
       <Tabs.Screen
@@ -101,6 +103,7 @@ export default function TabsLayout() {
         options={{
           title: t('tabs.survey'),
           tabBarIcon: () => <TabIcon label="📋" />,
+          href: null,
         }}
       />
       <Tabs.Screen
@@ -108,6 +111,7 @@ export default function TabsLayout() {
         options={{
           title: t('tabs.travel'),
           tabBarIcon: () => <TabIcon label="✈️" />,
+          href: null,
         }}
       />
     </Tabs>
