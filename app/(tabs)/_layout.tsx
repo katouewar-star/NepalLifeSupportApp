@@ -63,6 +63,7 @@ export default function TabsLayout() {
         options={{
           title: t('tabs.school'),
           tabBarIcon: () => <TabIcon label="🎓" />,
+          href: null,
         }}
       />
       <Tabs.Screen
@@ -92,6 +93,7 @@ export default function TabsLayout() {
         options={{
           title: t('tabs.visa'),
           tabBarIcon: () => <TabIcon label="🛂" />,
+          href: null,
         }}
       />
       <Tabs.Screen
