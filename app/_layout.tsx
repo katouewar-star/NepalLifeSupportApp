@@ -11,35 +11,45 @@ export default function RootLayout() {
   const { setUser, setSession, setLoading, signOut } = useAuthStore()
 
   useEffect(() => {
-    // Auth 状態変化を監視（INITIAL_SESSION で起動時セッションも復元される）
+    // 5秒以内にonAuthStateChangeが発火しない場合のフォールバック
+    const timeout = setTimeout(() => setLoading(false), 5000)
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        if (event === 'SIGNED_OUT' || !session) {
+        try {
+          if (event === 'SIGNED_OUT' || !session) {
+            signOut()
+          } else {
+            setSession({
+              accessToken: session.access_token,
+              refreshToken: session.refresh_token,
+            })
+            const user = session.user
+            const { data: profile } = await supabase
+              .from('users')
+              .select('role')
+              .eq('id', user.id)
+              .single()
+            setUser({
+              id: user.id,
+              email: user.email!,
+              name: user.user_metadata?.name ?? '',
+              role: (profile?.role as 'admin' | 'user') ?? 'user',
+            })
+          }
+        } catch {
           signOut()
-        } else {
-          setSession({
-            accessToken: session.access_token,
-            refreshToken: session.refresh_token,
-          })
-          const user = session.user
-          const { data: profile } = await supabase
-            .from('users')
-            .select('role')
-            .eq('id', user.id)
-            .single()
-          setUser({
-            id: user.id,
-            email: user.email!,
-            name: user.user_metadata?.name ?? '',
-            role: (profile?.role as 'admin' | 'user') ?? 'user',
-          })
+        } finally {
+          clearTimeout(timeout)
+          setLoading(false)
         }
-        // 初回イベント処理後にローディング解除
-        setLoading(false)
       }
     )
 
-    return () => subscription.unsubscribe()
+    return () => {
+      clearTimeout(timeout)
+      subscription.unsubscribe()
+    }
   }, [])
 
   return (
