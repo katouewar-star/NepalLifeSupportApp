@@ -1060,22 +1060,22 @@ function UserPostDetail({
 
         <View style={pd.body}>
           {/* ── 場所 ── */}
-          <View style={pd.labeledRow}>
+          <View style={pd.field}>
             <Text style={pd.fieldLabel}>📍 {t('travel.post.locationLabel')}</Text>
             <Text style={pd.fieldValue}>{post.location}</Text>
           </View>
 
           {/* ── カテゴリ ── */}
-          <View style={pd.labeledRow}>
+          <View style={pd.field}>
             <Text style={pd.fieldLabel}>🗂 {t('travel.post.categoryLabel')}</Text>
-            <View style={[pd.catBadge, { backgroundColor: c }]}>
+            <View style={[pd.catBadge, { backgroundColor: c, alignSelf: 'flex-start' }]}>
               <Text style={pd.catBadgeText}>{t(`travel.filter${capitalize(post.category)}`)}</Text>
             </View>
           </View>
 
           {/* ── 費用目安 ── */}
           {post.cost_level && (
-            <View style={pd.labeledRow}>
+            <View style={pd.field}>
               <Text style={pd.fieldLabel}>💴 {t('travel.post.costLabel')}</Text>
               <Text style={pd.fieldValue}>{t(`travel.cost.${post.cost_level}`)}</Text>
             </View>
@@ -1083,7 +1083,7 @@ function UserPostDetail({
 
           {/* ── 滞在期間 ── */}
           {post.duration_key && (
-            <View style={pd.labeledRow}>
+            <View style={pd.field}>
               <Text style={pd.fieldLabel}>⏱ {t('travel.post.durationLabel')}</Text>
               <Text style={pd.fieldValue}>{t(`travel.duration.${post.duration_key}`)}</Text>
             </View>
@@ -1091,7 +1091,7 @@ function UserPostDetail({
 
           {/* ── おすすめ季節 ── */}
           {post.season_tags.length > 0 && (
-            <View style={pd.labeledBlock}>
+            <View style={pd.field}>
               <Text style={pd.fieldLabel}>🌤 {t('travel.seasonLabel')}</Text>
               <View style={pd.seasonRow}>
                 {post.season_tags.map((sk) => (
@@ -1107,22 +1107,22 @@ function UserPostDetail({
 
           {/* ── アクセス方法 ── */}
           {post.access_info ? (
-            <View style={[pd.labeledBlock, { backgroundColor: bg, borderRadius: 12, padding: 12 }]}>
-              <Text style={[pd.fieldLabel, { color: c }]}>🚄 {t('travel.post.accessLabel')}</Text>
+            <View style={pd.field}>
+              <Text style={pd.fieldLabel}>🚄 {t('travel.post.accessLabel')}</Text>
               <Text style={pd.fieldValue}>{post.access_info}</Text>
             </View>
           ) : null}
 
           {/* ── 概要 ── */}
-          <View style={pd.section}>
-            <Text style={pd.sectionTitle}>📖 {t('travel.aboutLabel')}</Text>
+          <View style={pd.field}>
+            <Text style={pd.fieldLabel}>📖 {t('travel.aboutLabel')}</Text>
             <Text style={pd.desc}>{post.description}</Text>
           </View>
 
           {/* ── 見どころ ── */}
           {highlights.length > 0 && (
-            <View style={pd.section}>
-              <Text style={pd.sectionTitle}>✨ {t('travel.highlightsLabel')}</Text>
+            <View style={pd.field}>
+              <Text style={pd.fieldLabel}>✨ {t('travel.highlightsLabel')}</Text>
               {highlights.map((h, i) => {
                 const hlPhoto = hlPhotos[i] && hlPhotos[i] !== '' ? hlPhotos[i] : null
                 return (
@@ -1144,9 +1144,9 @@ function UserPostDetail({
 
           {/* ── アドバイス ── */}
           {post.tips ? (
-            <View style={[pd.tipBox, { backgroundColor: bg, borderLeftColor: c }]}>
-              <Text style={[pd.tipTitle, { color: c }]}>🇳🇵 {t('travel.tipsLabel')}</Text>
-              <Text style={pd.tipText}>{post.tips}</Text>
+            <View style={pd.field}>
+              <Text style={pd.fieldLabel}>🇳🇵 {t('travel.tipsLabel')}</Text>
+              <Text style={pd.fieldValue}>{post.tips}</Text>
             </View>
           ) : null}
 
@@ -1227,28 +1227,17 @@ const pd = StyleSheet.create({
 
   body: { padding: 20 },
 
-  // ラベル付き行（横並び）
-  labeledRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  // 統一フィールドカード（縦並び・左寄せ）
+  field: {
     backgroundColor: '#fff',
     borderRadius: 12,
     paddingHorizontal: 14,
-    paddingVertical: 10,
+    paddingVertical: 12,
     marginBottom: 8,
+    gap: 6,
   },
-  // ラベル付きブロック（縦並び）
-  labeledBlock: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    marginBottom: 8,
-    gap: 8,
-  },
-  fieldLabel: { fontSize: 11, fontWeight: '700', color: '#888' },
-  fieldValue: { fontSize: 14, fontWeight: '600', color: '#1a1a2e', flexShrink: 1, textAlign: 'right' },
+  fieldLabel: { fontSize: 12, fontWeight: '800', color: '#555', marginBottom: 2 },
+  fieldValue: { fontSize: 14, color: '#1a1a2e', lineHeight: 22 },
 
   catBadge: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: 10 },
   catBadgeText: { fontSize: 11, color: '#fff', fontWeight: '800' },
@@ -1257,15 +1246,7 @@ const pd = StyleSheet.create({
   seasonTag: { borderWidth: 1.5, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 3 },
   seasonTagText: { fontSize: 11, fontWeight: '700' },
 
-  // Content sections
-  section: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
-  },
-  sectionTitle: { fontSize: 13, fontWeight: '800', color: '#1a1a2e', marginBottom: 12 },
-  desc: { fontSize: 14, color: '#444', lineHeight: 22 },
+  desc: { fontSize: 14, color: '#1a1a2e', lineHeight: 22 },
 
   // Highlights
   hlItem: { marginBottom: 12 },

@@ -173,6 +173,7 @@ function dbToTravelPost(row: DbTravelPost): TravelPost {
     ...row,
     id: String(row.id),
     photo_urls: row.photo_urls ?? (row.photo_url ? [row.photo_url] : []),
+    season_tags: row.season_tags ?? [],
     highlights: row.highlights ?? [],
     highlight_photos: row.highlight_photos ?? [],
   }
