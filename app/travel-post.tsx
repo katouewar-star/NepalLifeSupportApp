@@ -13,6 +13,7 @@ import {
 } from 'react-native'
 import { useRouter } from 'expo-router'
 import { useTranslation } from 'react-i18next'
+import { useAuthStore } from '../src/stores/useAuthStore'
 import {
   TravelCategory,
   pickTravelImage,
@@ -27,17 +28,12 @@ const CATEGORIES: { key: TravelCategory; emoji: string; labelKey: string }[] = [
   { key: 'food',    emoji: '🍜',  labelKey: 'travel.filterFood'    },
 ]
 
-const SEASONS = [
-  { key: 'spring', label: '春 🌸' },
-  { key: 'summer', label: '夏 ☀️' },
-  { key: 'autumn', label: '秋 🍂' },
-  { key: 'winter', label: '冬 ❄️' },
-]
+const SEASON_KEYS = ['spring', 'summer', 'autumn', 'winter'] as const
 
-const COST_LEVELS: { level: 1 | 2 | 3; label: string }[] = [
-  { level: 1, label: '💴 格安'   },
-  { level: 2, label: '💴💴 普通'  },
-  { level: 3, label: '💴💴💴 高め' },
+const COST_LEVELS: { level: 1 | 2 | 3; costKey: string }[] = [
+  { level: 1, costKey: 'travel.cost.1' },
+  { level: 2, costKey: 'travel.cost.2' },
+  { level: 3, costKey: 'travel.cost.3' },
 ]
 
 const CATEGORY_COLOR: Record<TravelCategory, string> = {
@@ -50,6 +46,7 @@ const CATEGORY_COLOR: Record<TravelCategory, string> = {
 export default function TravelPostScreen() {
   const { t } = useTranslation()
   const router = useRouter()
+  const { user } = useAuthStore()
 
   const [title, setTitle]           = useState('')
   const [location, setLocation]     = useState('')
@@ -72,13 +69,18 @@ export default function TravelPostScreen() {
       const uri = await pickTravelImage()
       if (uri) setImageUri(uri)
     } catch (e: unknown) {
-      Alert.alert('エラー', e instanceof Error ? e.message : '画像の選択に失敗しました')
+      Alert.alert(t('travel.post.inputErrorTitle'), e instanceof Error ? e.message : String(e))
     }
   }
 
   async function handleSubmit() {
+    if (!user) {
+      Alert.alert(t('travel.post.inputErrorTitle'), 'ログインが必要です')
+      return
+    }
+
     if (!title.trim() || !location.trim() || !description.trim()) {
-      Alert.alert('入力エラー', 'タイトル・場所・説明は必須です')
+      Alert.alert(t('travel.post.inputErrorTitle'), t('travel.post.inputErrorMsg'))
       return
     }
 
@@ -102,11 +104,13 @@ export default function TravelPostScreen() {
         season_tags: seasonTags,
       })
 
-      Alert.alert('投稿完了', 'スポットを投稿しました！', [
+      Alert.alert(t('travel.post.successTitle'), t('travel.post.successMsg'), [
         { text: 'OK', onPress: () => router.back() },
       ])
     } catch (e: unknown) {
-      Alert.alert('エラー', e instanceof Error ? e.message : '投稿に失敗しました')
+      const msg = e instanceof Error ? e.message : String(e)
+      console.error('[TravelPost] 投稿エラー:', msg)
+      Alert.alert(t('travel.post.inputErrorTitle'), msg || t('travel.post.errorDefault'))
     } finally {
       setSubmitting(false)
       setUploading(false)
@@ -118,9 +122,9 @@ export default function TravelPostScreen() {
       {/* Header */}
       <View style={s.header}>
         <TouchableOpacity style={s.closeBtn} onPress={() => router.back()}>
-          <Text style={s.closeBtnText}>← 戻る</Text>
+          <Text style={s.closeBtnText}>{t('travel.post.back')}</Text>
         </TouchableOpacity>
-        <Text style={s.headerTitle}>✈️ スポットを投稿</Text>
+        <Text style={s.headerTitle}>✈️ {t('travel.post.title')}</Text>
       </View>
 
       <ScrollView
@@ -135,45 +139,45 @@ export default function TravelPostScreen() {
           ) : (
             <View style={s.photoPlaceholder}>
               <Text style={s.photoPlaceholderIcon}>📷</Text>
-              <Text style={s.photoPlaceholderText}>写真を選ぶ（1枚）</Text>
+              <Text style={s.photoPlaceholderText}>{t('travel.post.photoHint')}</Text>
             </View>
           )}
         </TouchableOpacity>
         {imageUri && (
           <TouchableOpacity style={s.removePhoto} onPress={() => setImageUri(null)}>
-            <Text style={s.removePhotoText}>✕ 写真を削除</Text>
+            <Text style={s.removePhotoText}>{t('travel.post.removePhoto')}</Text>
           </TouchableOpacity>
         )}
 
         {/* Title */}
-        <Text style={s.label}>スポット名 <Text style={s.required}>*</Text></Text>
+        <Text style={s.label}>{t('travel.post.spotName')} <Text style={s.required}>*</Text></Text>
         <TextInput
           style={s.input}
           value={title}
           onChangeText={setTitle}
-          placeholder="例: 新宿御苑"
+          placeholder={t('travel.post.spotNamePlaceholder')}
           placeholderTextColor="#bbb"
           maxLength={60}
         />
 
         {/* Location */}
-        <Text style={s.label}>場所・都道府県 <Text style={s.required}>*</Text></Text>
+        <Text style={s.label}>{t('travel.post.locationLabel')} <Text style={s.required}>*</Text></Text>
         <TextInput
           style={s.input}
           value={location}
           onChangeText={setLocation}
-          placeholder="例: 東京都新宿区"
+          placeholder={t('travel.post.locationPlaceholder')}
           placeholderTextColor="#bbb"
           maxLength={60}
         />
 
         {/* Description */}
-        <Text style={s.label}>紹介文 <Text style={s.required}>*</Text></Text>
+        <Text style={s.label}>{t('travel.post.descLabel')} <Text style={s.required}>*</Text></Text>
         <TextInput
           style={[s.input, s.textarea]}
           value={description}
           onChangeText={setDesc}
-          placeholder="このスポットの魅力を教えてください"
+          placeholder={t('travel.post.descPlaceholder')}
           placeholderTextColor="#bbb"
           multiline
           numberOfLines={4}
@@ -182,7 +186,7 @@ export default function TravelPostScreen() {
         <Text style={s.charCount}>{description.length} / 500</Text>
 
         {/* Category */}
-        <Text style={s.label}>カテゴリ</Text>
+        <Text style={s.label}>{t('travel.post.categoryLabel')}</Text>
         <View style={s.pillRow}>
           {CATEGORIES.map((c) => {
             const active = category === c.key
@@ -204,7 +208,7 @@ export default function TravelPostScreen() {
         </View>
 
         {/* Cost level */}
-        <Text style={s.label}>費用目安</Text>
+        <Text style={s.label}>{t('travel.post.costLabel')}</Text>
         <View style={s.pillRow}>
           {COST_LEVELS.map((c) => {
             const active = costLevel === c.level
@@ -215,25 +219,27 @@ export default function TravelPostScreen() {
                 onPress={() => setCost(c.level)}
                 activeOpacity={0.8}
               >
-                <Text style={[s.pillText, active && s.pillTextActive]}>{c.label}</Text>
+                <Text style={[s.pillText, active && s.pillTextActive]}>{t(c.costKey)}</Text>
               </TouchableOpacity>
             )
           })}
         </View>
 
         {/* Season tags */}
-        <Text style={s.label}>おすすめ季節（複数可）</Text>
+        <Text style={s.label}>{t('travel.post.seasonLabel')}</Text>
         <View style={s.pillRow}>
-          {SEASONS.map((s_) => {
-            const active = seasonTags.includes(s_.key)
+          {SEASON_KEYS.map((key) => {
+            const active = seasonTags.includes(key)
             return (
               <TouchableOpacity
-                key={s_.key}
+                key={key}
                 style={[s.pill, active && s.pillActive]}
-                onPress={() => toggleSeason(s_.key)}
+                onPress={() => toggleSeason(key)}
                 activeOpacity={0.8}
               >
-                <Text style={[s.pillText, active && s.pillTextActive]}>{s_.label}</Text>
+                <Text style={[s.pillText, active && s.pillTextActive]}>
+                  {t(`travel.season.${key}`)}
+                </Text>
               </TouchableOpacity>
             )
           })}
@@ -249,9 +255,7 @@ export default function TravelPostScreen() {
           {submitting || uploading ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text style={s.submitBtnText}>
-              {uploading ? '画像アップロード中...' : '投稿する'}
-            </Text>
+            <Text style={s.submitBtnText}>{t('travel.post.submit')}</Text>
           )}
         </TouchableOpacity>
 

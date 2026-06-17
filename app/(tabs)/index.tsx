@@ -203,7 +203,7 @@ export default function HomeScreen() {
           style={styles.postBanner}
           onPress={() => router.push('/travel-post' as any)}
         >
-          <Text style={styles.postBannerText}>＋ スポットを投稿する</Text>
+          <Text style={styles.postBannerText}>＋ {t('travel.newPost')}</Text>
         </Pressable>
 
         {/* Destination cards */}
