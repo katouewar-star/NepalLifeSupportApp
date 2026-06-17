@@ -159,6 +159,7 @@ export interface TravelPost {
   cost_level: 1 | 2 | 3 | null
   season_tags: string[]
   highlights: string[]
+  highlight_photos: string[]
   tips: string | null
   access_info: string | null
   duration_key: string | null
@@ -173,6 +174,7 @@ function dbToTravelPost(row: DbTravelPost): TravelPost {
     id: String(row.id),
     photo_urls: row.photo_urls ?? (row.photo_url ? [row.photo_url] : []),
     highlights: row.highlights ?? [],
+    highlight_photos: row.highlight_photos ?? [],
   }
 }
 
@@ -269,6 +271,7 @@ export type TravelPostParams = {
   cost_level: 1 | 2 | 3 | null
   season_tags: string[]
   highlights: string[]
+  highlight_photos: string[]
   tips: string | null
   access_info: string | null
   duration_key: string | null
@@ -295,6 +298,7 @@ export async function createTravelPost(params: TravelPostParams): Promise<Travel
       cost_level: params.cost_level,
       season_tags: params.season_tags,
       highlights: params.highlights.filter(Boolean),
+      highlight_photos: params.highlight_photos,
       tips: params.tips || null,
       access_info: params.access_info || null,
       duration_key: params.duration_key || null,
@@ -345,6 +349,7 @@ export async function updateTravelPost(
       cost_level: params.cost_level,
       season_tags: params.season_tags,
       highlights: params.highlights.filter(Boolean),
+      highlight_photos: params.highlight_photos,
       tips: params.tips || null,
       access_info: params.access_info || null,
       duration_key: params.duration_key || null,

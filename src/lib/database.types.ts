@@ -284,6 +284,7 @@ export interface Database {
           cost_level: 1 | 2 | 3 | null
           season_tags: string[]
           highlights: string[]
+          highlight_photos: string[]
           tips: string | null
           access_info: string | null
           duration_key: string | null
@@ -303,6 +304,7 @@ export interface Database {
           cost_level?: 1 | 2 | 3 | null
           season_tags?: string[]
           highlights?: string[]
+          highlight_photos?: string[]
           tips?: string | null
           access_info?: string | null
           duration_key?: string | null
@@ -320,6 +322,7 @@ export interface Database {
           cost_level?: 1 | 2 | 3 | null
           season_tags?: string[]
           highlights?: string[]
+          highlight_photos?: string[]
           tips?: string | null
           access_info?: string | null
           duration_key?: string | null

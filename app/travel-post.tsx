@@ -68,6 +68,10 @@ export default function TravelPostScreen() {
 
   // Rich fields
   const [highlights, setHighlights] = useState<string[]>(['', '', '', ''])
+  // per-highlight photos: { url: already-uploaded URL | null, newUri: local pick | null }
+  const [hlPhotos, setHlPhotos] = useState<{ url: string | null; newUri: string | null }[]>(
+    Array.from({ length: MAX_HIGHLIGHTS }, () => ({ url: null, newUri: null }))
+  )
   const [tips, setTips]             = useState('')
   const [accessInfo, setAccessInfo] = useState('')
 
@@ -100,6 +104,11 @@ export default function TravelPostScreen() {
         setHighlights([
           hl[0] ?? '', hl[1] ?? '', hl[2] ?? '', hl[3] ?? '',
         ])
+        const hp = post.highlight_photos ?? []
+        setHlPhotos(Array.from({ length: MAX_HIGHLIGHTS }, (_, i) => ({
+          url: hp[i] ?? null,
+          newUri: null,
+        })))
         setTips(post.tips ?? '')
         setAccessInfo(post.access_info ?? '')
         // Use photo_urls array; fall back to photo_url for older posts
@@ -117,6 +126,20 @@ export default function TravelPostScreen() {
 
   function updateHighlight(index: number, value: string) {
     setHighlights((prev) => prev.map((h, i) => (i === index ? value : h)))
+  }
+
+  async function handlePickHlPhoto(index: number) {
+    try {
+      const uris = await pickTravelImages(1)
+      if (uris.length === 0) return
+      setHlPhotos((prev) => prev.map((p, i) => (i === index ? { ...p, newUri: uris[0] } : p)))
+    } catch (e: unknown) {
+      setErrorMsg(e instanceof Error ? e.message : String(e))
+    }
+  }
+
+  function removeHlPhoto(index: number) {
+    setHlPhotos((prev) => prev.map((p, i) => (i === index ? { url: null, newUri: null } : p)))
   }
 
   function removeExistingPhoto(url: string) {
@@ -153,14 +176,28 @@ export default function TravelPostScreen() {
     try {
       setSubmitting(true)
 
+      setUploading(true)
+
+      // メイン写真アップロード
       let uploadedUrls: string[] = []
       if (newUris.length > 0) {
-        setUploading(true)
         uploadedUrls = await uploadTravelPhotos(newUris)
-        setUploading(false)
+      }
+      const allPhotoUrls = [...existingUrls, ...uploadedUrls]
+
+      // 見どころ写真アップロード
+      const finalHlPhotos: string[] = []
+      for (let i = 0; i < MAX_HIGHLIGHTS; i++) {
+        const p = hlPhotos[i]
+        if (p.newUri) {
+          const [uploaded] = await uploadTravelPhotos([p.newUri])
+          finalHlPhotos.push(uploaded)
+        } else {
+          finalHlPhotos.push(p.url ?? '')
+        }
       }
 
-      const allPhotoUrls = [...existingUrls, ...uploadedUrls]
+      setUploading(false)
 
       const params = {
         title,
@@ -171,6 +208,7 @@ export default function TravelPostScreen() {
         cost_level: costLevel,
         season_tags: seasonTags,
         highlights: highlights.filter((h) => h.trim()),
+        highlight_photos: finalHlPhotos,
         tips: tips.trim() || null,
         access_info: accessInfo.trim() || null,
         duration_key: durationKey,
@@ -392,17 +430,34 @@ export default function TravelPostScreen() {
 
         {/* ── Highlights ──────────────────────────── */}
         <Text style={s.label}>✨ {t('travel.post.highlightsLabel')}</Text>
-        {highlights.map((h, i) => (
-          <TextInput
-            key={i}
-            style={[s.input, { marginBottom: 8 }]}
-            value={h}
-            onChangeText={(v) => updateHighlight(i, v)}
-            placeholder={`${i + 1}. ${t('travel.post.highlightPlaceholder')}`}
-            placeholderTextColor="#bbb"
-            maxLength={80}
-          />
-        ))}
+        {highlights.map((h, i) => {
+          const photo = hlPhotos[i]
+          const photoUri = photo.newUri ?? photo.url ?? null
+          return (
+            <View key={i} style={s.hlRow}>
+              <TextInput
+                style={[s.input, s.hlInput]}
+                value={h}
+                onChangeText={(v) => updateHighlight(i, v)}
+                placeholder={`${i + 1}. ${t('travel.post.highlightPlaceholder')}`}
+                placeholderTextColor="#bbb"
+                maxLength={80}
+              />
+              {photoUri ? (
+                <View style={s.hlThumb}>
+                  <Image source={{ uri: photoUri }} style={s.hlThumbImg} resizeMode="cover" />
+                  <TouchableOpacity style={s.hlRemoveBtn} onPress={() => removeHlPhoto(i)}>
+                    <Text style={s.removeBtnText}>✕</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <TouchableOpacity style={s.hlAddBtn} onPress={() => handlePickHlPhoto(i)} activeOpacity={0.8}>
+                  <Text style={s.hlAddIcon}>📷</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          )
+        })}
 
         {/* ── Tips ────────────────────────────────── */}
         <Text style={s.label}>🇳🇵 {t('travel.post.tipsPostLabel')}</Text>
@@ -559,6 +614,46 @@ const s = StyleSheet.create({
   pillEmoji: { fontSize: 13 },
   pillText: { fontSize: 12, color: '#555', fontWeight: '600' },
   pillTextActive: { color: '#fff' },
+
+  // Highlight row
+  hlRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
+  hlInput: { flex: 1, marginBottom: 0 },
+  hlThumb: {
+    width: 52,
+    height: 52,
+    borderRadius: 10,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  hlThumbImg: { width: '100%', height: '100%' },
+  hlRemoveBtn: {
+    position: 'absolute',
+    top: 2,
+    right: 2,
+    backgroundColor: 'rgba(0,0,0,0.55)',
+    borderRadius: 8,
+    width: 16,
+    height: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  hlAddBtn: {
+    width: 52,
+    height: 52,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: '#DDE3EE',
+    borderStyle: 'dashed',
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  hlAddIcon: { fontSize: 20 },
 
   submitBtn: {
     marginTop: 28,
