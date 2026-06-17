@@ -453,10 +453,9 @@ const s = StyleSheet.create({
   header: {
     backgroundColor: HEADER_COLOR,
     paddingTop: Platform.OS === 'ios' ? 56 : 42,
-    paddingBottom: 28,
+    paddingBottom: 24,
     paddingHorizontal: 24,
     alignItems: 'center',
-    overflow: 'hidden',
   },
   headerCircle1: {
     position: 'absolute',
@@ -465,6 +464,7 @@ const s = StyleSheet.create({
     width: 160,
     height: 160,
     borderRadius: 80,
+    zIndex: 0,
     backgroundColor: 'rgba(255,255,255,0.06)',
   },
   headerCircle2: {
@@ -475,8 +475,9 @@ const s = StyleSheet.create({
     height: 180,
     borderRadius: 90,
     backgroundColor: 'rgba(255,255,255,0.04)',
+    zIndex: 0,
   },
-  headerEmoji: { fontSize: 46, marginBottom: 10 },
+  headerEmoji: { fontSize: 46, marginBottom: 10, zIndex: 1 },
   headerTitle: {
     fontSize: 22,
     fontWeight: 'bold',
