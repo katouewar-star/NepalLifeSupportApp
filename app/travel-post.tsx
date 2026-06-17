@@ -253,7 +253,16 @@ export default function TravelPostScreen() {
           <Text style={s.successMsg}>
             {isEdit ? t('travel.post.updateSuccess') : t('travel.post.successMsg')}
           </Text>
-          <TouchableOpacity style={s.successBtn} onPress={() => router.back()}>
+          <TouchableOpacity
+            style={s.successBtn}
+            onPress={() => {
+              if (router.canGoBack()) {
+                router.back()
+              } else {
+                router.replace('/(tabs)/')
+              }
+            }}
+          >
             <Text style={s.successBtnText}>{t('travel.post.back')}</Text>
           </TouchableOpacity>
         </View>
@@ -264,7 +273,10 @@ export default function TravelPostScreen() {
   return (
     <View style={s.wrapper}>
       <View style={s.header}>
-        <TouchableOpacity style={s.closeBtn} onPress={() => router.back()}>
+        <TouchableOpacity
+          style={s.closeBtn}
+          onPress={() => router.canGoBack() ? router.back() : router.replace('/(tabs)/')}
+        >
           <Text style={s.closeBtnText}>{t('travel.post.back')}</Text>
         </TouchableOpacity>
         <Text style={s.headerTitle}>
