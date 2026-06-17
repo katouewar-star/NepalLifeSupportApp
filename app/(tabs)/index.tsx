@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import {
   Dimensions,
   Image,
@@ -12,7 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
-import { useRouter } from 'expo-router'
+import { useRouter, useFocusEffect } from 'expo-router'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { signOut } from '@/lib/auth'
@@ -21,8 +21,10 @@ import FeatureMenuModal from '@/components/FeatureMenuModal'
 import {
   DESTINATIONS,
   filterDestinations,
+  fetchTravelPosts,
   TravelCategory,
   TravelDestination,
+  TravelPost,
 } from '@/lib/travel'
 
 const { width: SW } = Dimensions.get('window')
@@ -62,12 +64,25 @@ export default function HomeScreen() {
   const [heroIdx, setHeroIdx] = useState(0)
   const [selected, setSelected]   = useState<TravelDestination | null>(null)
   const [menuOpen, setMenuOpen]   = useState(false)
+  const [userPosts, setUserPosts] = useState<TravelPost[]>([])
 
   const featured = useMemo(
     () => DESTINATIONS.filter((d) => FEATURED_IDS.includes(d.id)),
     []
   )
   const filtered = useMemo(() => filterDestinations(DESTINATIONS, cat), [cat])
+
+  const loadUserPosts = useCallback(async () => {
+    try {
+      const posts = await fetchTravelPosts()
+      setUserPosts(posts)
+    } catch {
+      // silently ignore
+    }
+  }, [])
+
+  // 画面にフォーカスが戻るたびに再取得（投稿後に反映）
+  useFocusEffect(useCallback(() => { loadUserPosts() }, [loadUserPosts]))
 
   const handleSignOut = async () => {
     setMenuOpen(false)
@@ -205,6 +220,29 @@ export default function HomeScreen() {
         >
           <Text style={styles.postBannerText}>＋ {t('travel.newPost')}</Text>
         </Pressable>
+
+        {/* User submitted posts */}
+        {userPosts.length > 0 && (
+          <View style={styles.userPostsSection}>
+            <Text style={styles.userPostsLabel}>{t('travel.userPosts')}</Text>
+            {userPosts.map((post) => (
+              <View key={post.id} style={styles.userCard}>
+                {post.photo_url ? (
+                  <Image source={{ uri: post.photo_url }} style={styles.userCardPhoto} resizeMode="cover" />
+                ) : (
+                  <View style={[styles.userCardPhotoPlaceholder, { backgroundColor: '#EEF2FF' }]}>
+                    <Text style={{ fontSize: 32 }}>📍</Text>
+                  </View>
+                )}
+                <View style={styles.userCardBody}>
+                  <Text style={styles.userCardTitle} numberOfLines={1}>{post.title}</Text>
+                  <Text style={styles.userCardLocation}>📍 {post.location}</Text>
+                  <Text style={styles.userCardDesc} numberOfLines={2}>{post.description}</Text>
+                </View>
+              </View>
+            ))}
+          </View>
+        )}
 
         {/* Destination cards */}
         <View style={styles.cardList}>
@@ -553,6 +591,40 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
   },
   pillText: { fontSize: 12, fontWeight: '700' },
+
+  // User posts
+  userPostsSection: { paddingHorizontal: 16, marginBottom: 8 },
+  userPostsLabel: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#999',
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+    marginBottom: 10,
+    marginTop: 4,
+  },
+  userCard: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    overflow: 'hidden',
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 2,
+  },
+  userCardPhoto: { width: '100%', height: 140 },
+  userCardPhotoPlaceholder: {
+    width: '100%',
+    height: 80,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  userCardBody: { padding: 12 },
+  userCardTitle: { fontSize: 15, fontWeight: '800', color: '#1a1a2e', marginBottom: 3 },
+  userCardLocation: { fontSize: 11, color: '#999', marginBottom: 5 },
+  userCardDesc: { fontSize: 12, color: '#666', lineHeight: 18 },
 
   // Post banner
   postBanner: {

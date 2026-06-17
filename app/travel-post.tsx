@@ -9,7 +9,6 @@ import {
   ActivityIndicator,
   StyleSheet,
   Platform,
-  Alert,
 } from 'react-native'
 import { useRouter } from 'expo-router'
 import { useTranslation } from 'react-i18next'
@@ -57,6 +56,8 @@ export default function TravelPostScreen() {
   const [imageUri, setImageUri]     = useState<string | null>(null)
   const [uploading, setUploading]   = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [errorMsg, setErrorMsg]     = useState<string | null>(null)
+  const [success, setSuccess]       = useState(false)
 
   function toggleSeason(key: string) {
     setSeasons((prev) =>
@@ -69,18 +70,20 @@ export default function TravelPostScreen() {
       const uri = await pickTravelImage()
       if (uri) setImageUri(uri)
     } catch (e: unknown) {
-      Alert.alert(t('travel.post.inputErrorTitle'), e instanceof Error ? e.message : String(e))
+      setErrorMsg(e instanceof Error ? e.message : String(e))
     }
   }
 
   async function handleSubmit() {
+    setErrorMsg(null)
+
     if (!user) {
-      Alert.alert(t('travel.post.inputErrorTitle'), 'ログインが必要です')
+      setErrorMsg('ログインが必要です / Login required')
       return
     }
 
     if (!title.trim() || !location.trim() || !description.trim()) {
-      Alert.alert(t('travel.post.inputErrorTitle'), t('travel.post.inputErrorMsg'))
+      setErrorMsg(t('travel.post.inputErrorMsg'))
       return
     }
 
@@ -104,17 +107,34 @@ export default function TravelPostScreen() {
         season_tags: seasonTags,
       })
 
-      Alert.alert(t('travel.post.successTitle'), t('travel.post.successMsg'), [
-        { text: 'OK', onPress: () => router.back() },
-      ])
+      setSuccess(true)
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e)
       console.error('[TravelPost] 投稿エラー:', msg)
-      Alert.alert(t('travel.post.inputErrorTitle'), msg || t('travel.post.errorDefault'))
+      setErrorMsg(msg || t('travel.post.errorDefault'))
     } finally {
       setSubmitting(false)
       setUploading(false)
     }
+  }
+
+  // 成功画面
+  if (success) {
+    return (
+      <View style={s.wrapper}>
+        <View style={s.header}>
+          <Text style={s.headerTitle}>✈️ {t('travel.post.title')}</Text>
+        </View>
+        <View style={s.successBox}>
+          <Text style={s.successIcon}>✅</Text>
+          <Text style={s.successTitle}>{t('travel.post.successTitle')}</Text>
+          <Text style={s.successMsg}>{t('travel.post.successMsg')}</Text>
+          <TouchableOpacity style={s.successBtn} onPress={() => router.back()}>
+            <Text style={s.successBtnText}>← ホームへ戻る</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    )
   }
 
   return (
@@ -132,6 +152,13 @@ export default function TravelPostScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
+        {/* Error banner */}
+        {errorMsg && (
+          <View style={s.errorBanner}>
+            <Text style={s.errorBannerText}>⚠️ {errorMsg}</Text>
+          </View>
+        )}
+
         {/* Photo picker */}
         <TouchableOpacity style={s.photoPicker} onPress={handlePickImage} activeOpacity={0.8}>
           {imageUri ? (
@@ -253,7 +280,12 @@ export default function TravelPostScreen() {
           disabled={submitting || uploading}
         >
           {submitting || uploading ? (
-            <ActivityIndicator color="#fff" />
+            <View style={s.submitLoading}>
+              <ActivityIndicator color="#fff" />
+              <Text style={s.submitBtnText}>
+                {uploading ? t('travel.post.uploading') : t('travel.post.submit')}
+              </Text>
+            </View>
           ) : (
             <Text style={s.submitBtnText}>{t('travel.post.submit')}</Text>
           )}
@@ -287,6 +319,16 @@ const s = StyleSheet.create({
   headerTitle: { color: '#fff', fontSize: 17, fontWeight: 'bold' },
 
   scroll: { padding: 20 },
+
+  errorBanner: {
+    backgroundColor: '#FEE2E2',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: '#DC2626',
+  },
+  errorBannerText: { color: '#DC2626', fontSize: 13, fontWeight: '600' },
 
   photoPicker: {
     borderRadius: 16,
@@ -377,5 +419,26 @@ const s = StyleSheet.create({
     alignItems: 'center',
   },
   submitBtnDisabled: { opacity: 0.6 },
+  submitLoading: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   submitBtnText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+
+  // 成功画面
+  successBox: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 32,
+    gap: 16,
+  },
+  successIcon: { fontSize: 64 },
+  successTitle: { fontSize: 22, fontWeight: 'bold', color: '#1a1a2e' },
+  successMsg: { fontSize: 15, color: '#555', textAlign: 'center', lineHeight: 22 },
+  successBtn: {
+    marginTop: 16,
+    backgroundColor: '#1E3A5F',
+    borderRadius: 14,
+    paddingHorizontal: 28,
+    paddingVertical: 14,
+  },
+  successBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 15 },
 })
