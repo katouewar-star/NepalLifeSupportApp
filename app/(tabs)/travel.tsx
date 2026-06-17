@@ -11,7 +11,7 @@ import {
   Platform,
 } from 'react-native'
 import { useTranslation } from 'react-i18next'
-import { useRouter } from 'expo-router'
+import { useRouter, Link } from 'expo-router'
 import {
   DESTINATIONS,
   filterDestinations,
@@ -139,13 +139,11 @@ export default function TravelScreen() {
         </ScrollView>
 
         {/* ── 投稿ボタン ── */}
-        <TouchableOpacity
-          style={s.postBanner}
-          onPress={() => router.push('/travel-post')}
-          activeOpacity={0.85}
-        >
-          <Text style={s.postBannerText}>＋ スポットを投稿する</Text>
-        </TouchableOpacity>
+        <Link href="/travel-post" asChild>
+          <TouchableOpacity style={s.postBanner} activeOpacity={0.85}>
+            <Text style={s.postBannerText}>＋ スポットを投稿する</Text>
+          </TouchableOpacity>
+        </Link>
 
         {/* ── Featured carousel (all view only) ── */}
         {filter === 'all' && (
