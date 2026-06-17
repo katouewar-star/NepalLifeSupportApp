@@ -11,7 +11,7 @@ import {
   Platform,
 } from 'react-native'
 import { useTranslation } from 'react-i18next'
-import { useRouter, Link } from 'expo-router'
+import { useRouter } from 'expo-router'
 import {
   DESTINATIONS,
   filterDestinations,
@@ -139,11 +139,13 @@ export default function TravelScreen() {
         </ScrollView>
 
         {/* ── 投稿ボタン ── */}
-        <Link href="/travel-post" asChild>
-          <TouchableOpacity style={s.postBanner} activeOpacity={0.85}>
-            <Text style={s.postBannerText}>＋ スポットを投稿する</Text>
-          </TouchableOpacity>
-        </Link>
+        <TouchableOpacity
+          style={s.postBanner}
+          onPress={() => router.push('/travel-post' as any)}
+          activeOpacity={0.85}
+        >
+          <Text style={s.postBannerText}>＋ スポットを投稿する</Text>
+        </TouchableOpacity>
 
         {/* ── Featured carousel (all view only) ── */}
         {filter === 'all' && (
@@ -494,12 +496,14 @@ const s = StyleSheet.create({
   postBanner: {
     marginHorizontal: 16,
     marginBottom: 8,
-    backgroundColor: '#1E3A5F',
+    backgroundColor: '#E63946',
     borderRadius: 14,
-    paddingVertical: 14,
+    paddingVertical: 16,
+    minHeight: 50,
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  postBannerText: { color: '#fff', fontWeight: 'bold', fontSize: 15 },
+  postBannerText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
 
   // Filter pills
   filterRow: {
