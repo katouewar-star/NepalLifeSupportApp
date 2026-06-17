@@ -208,7 +208,6 @@ export interface Database {
           status?: 'pending' | 'resolved' | 'dismissed'
         }
       }
-    }
       travel_posts: {
         Row: {
           id: number

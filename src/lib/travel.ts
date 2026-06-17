@@ -176,18 +176,17 @@ function requireAuth(): string {
 export async function fetchTravelPosts(
   category?: TravelCategory
 ): Promise<TravelPost[]> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const query: any = (supabase.from('travel_posts') as any)
+  let query = supabase
+    .from('travel_posts')
     .select('*')
     .eq('status', 'approved')
 
-  const { data, error } = await (category
-    ? query.eq('category', category)
-    : query
-  ).order('created_at', { ascending: false })
+  if (category) query = query.eq('category', category)
+
+  const { data, error } = await query.order('created_at', { ascending: false })
 
   if (error) throw new Error(error.message)
-  return ((data ?? []) as DbTravelPost[]).map(dbToTravelPost)
+  return (data ?? []).map(dbToTravelPost)
 }
 
 /** Upload a photo to Supabase Storage and return the public URL */
@@ -196,15 +195,17 @@ export async function uploadTravelPhoto(
 ): Promise<string> {
   const userId = requireAuth()
 
-  const ext = imageUri.split('.').pop()?.toLowerCase() ?? 'jpg'
-  const path = `${userId}/${Date.now()}.${ext}`
-
   const response = await fetch(imageUri)
   const blob = await response.blob()
 
+  // blob.type is reliable on both native and web; fall back to jpg
+  const mimeType = blob.type || 'image/jpeg'
+  const ext = mimeType.split('/')[1]?.replace('jpeg', 'jpg') ?? 'jpg'
+  const path = `${userId}/${Date.now()}.${ext}`
+
   const { error } = await supabase.storage
     .from('travel-photos')
-    .upload(path, blob, { contentType: `image/${ext}`, upsert: false })
+    .upload(path, blob, { contentType: mimeType, upsert: false })
 
   if (error) throw new Error(error.message)
 
@@ -244,7 +245,8 @@ export async function createTravelPost(params: {
   if (!params.description.trim()) throw new Error('description must not be empty')
   if (!params.location.trim()) throw new Error('location must not be empty')
 
-  const { data, error } = await (supabase.from('travel_posts') as any)
+  const { data, error } = await supabase
+    .from('travel_posts')
     .insert({
       user_id: userId,
       title: params.title.trim(),
@@ -259,13 +261,14 @@ export async function createTravelPost(params: {
     .single()
 
   if (error) throw new Error(error.message)
-  return dbToTravelPost(data as DbTravelPost)
+  return dbToTravelPost(data)
 }
 
 /** Delete own travel post */
 export async function deleteTravelPost(postId: string): Promise<void> {
   const userId = requireAuth()
-  const { error } = await (supabase.from('travel_posts') as any)
+  const { error } = await supabase
+    .from('travel_posts')
     .delete()
     .eq('id', postId)
     .eq('user_id', userId)
