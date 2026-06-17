@@ -29,7 +29,7 @@ describe('useAuthStore', () => {
   describe('認証状態の管理', () => {
     it('setUserでユーザーを設定できること', () => {
       const { setUser } = useAuthStore.getState()
-      const mockUser = { id: 'user-1', email: 'test@example.com', name: 'テストユーザー' }
+      const mockUser = { id: 'user-1', email: 'test@example.com', name: 'テストユーザー', role: 'user' as const }
       act(() => { setUser(mockUser) })
       expect(useAuthStore.getState().user).toEqual(mockUser)
     })
@@ -37,7 +37,7 @@ describe('useAuthStore', () => {
     it('ユーザーが設定されると認証済み状態になること', () => {
       const { setUser } = useAuthStore.getState()
       act(() => {
-        setUser({ id: 'user-1', email: 'test@example.com', name: 'テスト' })
+        setUser({ id: 'user-1', email: 'test@example.com', name: 'テスト', role: 'user' as const })
       })
       expect(useAuthStore.getState().isAuthenticated).toBe(true)
     })
@@ -45,7 +45,7 @@ describe('useAuthStore', () => {
     it('signOutでユーザーとセッションがクリアされること', () => {
       const { setUser, signOut } = useAuthStore.getState()
       act(() => {
-        setUser({ id: 'user-1', email: 'test@example.com', name: 'テスト' })
+        setUser({ id: 'user-1', email: 'test@example.com', name: 'テスト', role: 'user' as const })
         signOut()
       })
       expect(useAuthStore.getState().user).toBeNull()

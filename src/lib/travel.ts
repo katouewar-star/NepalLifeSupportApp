@@ -155,15 +155,25 @@ export interface TravelPost {
   location: string
   category: TravelCategory
   photo_url: string | null
+  photo_urls: string[]
   cost_level: 1 | 2 | 3 | null
   season_tags: string[]
+  highlights: string[]
+  tips: string | null
+  access_info: string | null
+  duration_key: string | null
   status: 'pending' | 'approved' | 'rejected'
   like_count: number
   created_at: string
 }
 
 function dbToTravelPost(row: DbTravelPost): TravelPost {
-  return { ...row, id: String(row.id) }
+  return {
+    ...row,
+    id: String(row.id),
+    photo_urls: row.photo_urls ?? (row.photo_url ? [row.photo_url] : []),
+    highlights: row.highlights ?? [],
+  }
 }
 
 function requireAuth(): string {
@@ -213,7 +223,7 @@ export async function uploadTravelPhoto(
   return data.publicUrl
 }
 
-/** Pick an image from the device library. Returns uri or null if cancelled. */
+/** Pick a single image. Returns uri or null if cancelled. */
 export async function pickTravelImage(): Promise<string | null> {
   const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync()
   if (status !== 'granted') throw new Error('Gallery permission denied')
@@ -229,16 +239,43 @@ export async function pickTravelImage(): Promise<string | null> {
   return result.assets[0].uri
 }
 
-/** Create a new travel post. photo_url should be a Storage public URL. */
-export async function createTravelPost(params: {
+/** Pick multiple images (up to maxCount). Returns uri array. */
+export async function pickTravelImages(maxCount = 5): Promise<string[]> {
+  const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync()
+  if (status !== 'granted') throw new Error('Gallery permission denied')
+
+  const result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ['images'],
+    allowsMultipleSelection: true,
+    quality: 0.8,
+    selectionLimit: maxCount,
+  })
+
+  if (result.canceled) return []
+  return result.assets.map((a) => a.uri)
+}
+
+/** Upload multiple photos and return public URL array */
+export async function uploadTravelPhotos(imageUris: string[]): Promise<string[]> {
+  return Promise.all(imageUris.map((uri) => uploadTravelPhoto(uri)))
+}
+
+export type TravelPostParams = {
   title: string
   description: string
   location: string
   category: TravelCategory
-  photo_url: string | null
+  photo_urls: string[]
   cost_level: 1 | 2 | 3 | null
   season_tags: string[]
-}): Promise<TravelPost> {
+  highlights: string[]
+  tips: string | null
+  access_info: string | null
+  duration_key: string | null
+}
+
+/** Create a new travel post */
+export async function createTravelPost(params: TravelPostParams): Promise<TravelPost> {
   const userId = requireAuth()
 
   if (!params.title.trim()) throw new Error('title must not be empty')
@@ -253,9 +290,14 @@ export async function createTravelPost(params: {
       description: params.description.trim(),
       location: params.location.trim(),
       category: params.category,
-      photo_url: params.photo_url,
+      photo_urls: params.photo_urls,
+      photo_url: params.photo_urls[0] ?? null,
       cost_level: params.cost_level,
       season_tags: params.season_tags,
+      highlights: params.highlights.filter(Boolean),
+      tips: params.tips || null,
+      access_info: params.access_info || null,
+      duration_key: params.duration_key || null,
     })
     .select()
     .single()
@@ -270,7 +312,7 @@ export async function deleteTravelPost(postId: string): Promise<void> {
   const { error } = await supabase
     .from('travel_posts')
     .delete()
-    .eq('id', postId)
+    .eq('id', Number(postId))
     .eq('user_id', userId)
   if (error) throw new Error(error.message)
 }
@@ -281,22 +323,14 @@ export async function adminDeleteTravelPost(postId: string): Promise<void> {
   const { error } = await supabase
     .from('travel_posts')
     .delete()
-    .eq('id', postId)
+    .eq('id', Number(postId))
   if (error) throw new Error(error.message)
 }
 
 /** Update a travel post (owner or admin — RLS enforces this) */
 export async function updateTravelPost(
   postId: string,
-  params: {
-    title: string
-    description: string
-    location: string
-    category: TravelCategory
-    photo_url: string | null
-    cost_level: 1 | 2 | 3 | null
-    season_tags: string[]
-  }
+  params: TravelPostParams
 ): Promise<TravelPost> {
   requireAuth()
   const { data, error } = await supabase
@@ -306,11 +340,16 @@ export async function updateTravelPost(
       description: params.description.trim(),
       location: params.location.trim(),
       category: params.category,
-      photo_url: params.photo_url,
+      photo_urls: params.photo_urls,
+      photo_url: params.photo_urls[0] ?? null,
       cost_level: params.cost_level,
       season_tags: params.season_tags,
+      highlights: params.highlights.filter(Boolean),
+      tips: params.tips || null,
+      access_info: params.access_info || null,
+      duration_key: params.duration_key || null,
     })
-    .eq('id', postId)
+    .eq('id', Number(postId))
     .select()
     .single()
   if (error) throw new Error(error.message)
@@ -322,7 +361,7 @@ export async function fetchTravelPost(postId: string): Promise<TravelPost> {
   const { data, error } = await supabase
     .from('travel_posts')
     .select('*')
-    .eq('id', postId)
+    .eq('id', Number(postId))
     .single()
   if (error) throw new Error(error.message)
   return dbToTravelPost(data)

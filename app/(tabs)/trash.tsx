@@ -135,7 +135,7 @@ export default function TrashScreen() {
         {!isLoading && !error && displayRules.length > 0 && (
           <View style={styles.cardList}>
             {displayRules.map((item) => (
-              <TrashRuleCard key={item.id} item={item} language={language} />
+              <TrashRuleCard key={item.id} item={item} language={language === 'ne' ? 'ne' : 'ja'} />
             ))}
           </View>
         )}

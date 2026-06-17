@@ -14,7 +14,7 @@ export interface Database {
           id: string
           email: string
           name: string
-          language: 'ne' | 'ja'
+          language: 'ne' | 'ja' | 'en'
           postal_code: string | null
           fcm_token: string | null
           role: 'admin' | 'user'
@@ -24,7 +24,7 @@ export interface Database {
           id?: string
           email: string
           name: string
-          language?: 'ne' | 'ja'
+          language?: 'ne' | 'ja' | 'en'
           postal_code?: string | null
           fcm_token?: string | null
           role?: 'admin' | 'user'
@@ -34,11 +34,12 @@ export interface Database {
           id?: string
           email?: string
           name?: string
-          language?: 'ne' | 'ja'
+          language?: 'ne' | 'ja' | 'en'
           postal_code?: string | null
           fcm_token?: string | null
           role?: 'admin' | 'user'
         }
+        Relationships: []
       }
       phrasebooks: {
         Row: {
@@ -61,6 +62,7 @@ export interface Database {
           ne?: string
           sort_order?: number
         }
+        Relationships: []
       }
       trash_rules: {
         Row: {
@@ -89,6 +91,7 @@ export interface Database {
           notes_ne?: string | null
           icon?: string | null
         }
+        Relationships: []
       }
       jobs: {
         Row: {
@@ -131,6 +134,7 @@ export interface Database {
           url?: string | null
           is_active?: boolean
         }
+        Relationships: []
       }
       posts: {
         Row: {
@@ -157,6 +161,7 @@ export interface Database {
           category?: 'qa' | 'life' | 'event'
           like_count?: number
         }
+        Relationships: []
       }
       comments: {
         Row: {
@@ -176,6 +181,7 @@ export interface Database {
         Update: {
           body?: string
         }
+        Relationships: []
       }
       likes: {
         Row: {
@@ -187,6 +193,7 @@ export interface Database {
           post_id: number
         }
         Update: never
+        Relationships: []
       }
       reports: {
         Row: {
@@ -210,6 +217,59 @@ export interface Database {
         Update: {
           status?: 'pending' | 'resolved' | 'dismissed'
         }
+        Relationships: []
+      }
+      survey_responses: {
+        Row: {
+          id: number
+          user_id: string | null
+          q1_residence: string
+          q2_japanese_level: string
+          q3_usability: number
+          q4_design: number
+          q5_speed: number
+          q6_useful_features: string[]
+          q7_translation_accuracy: number
+          q8_wanted_features: string[]
+          q9_satisfaction: number
+          q10_recommend: string
+          q11_paid_sub: string
+          q12_good_points: string
+          q13_improvements: string
+          q14_other: string
+          q15_job_service: string
+          q16_housing_service: string
+          q17_school_service: string
+          q18_consultation: string
+          created_at: string
+        }
+        Insert: {
+          id?: number
+          user_id?: string | null
+          q1_residence: string
+          q2_japanese_level: string
+          q3_usability: number
+          q4_design: number
+          q5_speed: number
+          q6_useful_features: string[]
+          q7_translation_accuracy: number
+          q8_wanted_features: string[]
+          q9_satisfaction: number
+          q10_recommend: string
+          q11_paid_sub: string
+          q12_good_points: string
+          q13_improvements: string
+          q14_other: string
+          q15_job_service: string
+          q16_housing_service: string
+          q17_school_service: string
+          q18_consultation: string
+          created_at?: string
+        }
+        Update: {
+          user_id?: string | null
+        }
+        Relationships: []
       }
       travel_posts: {
         Row: {
@@ -220,8 +280,13 @@ export interface Database {
           location: string
           category: 'city' | 'nature' | 'culture' | 'food'
           photo_url: string | null
+          photo_urls: string[]
           cost_level: 1 | 2 | 3 | null
           season_tags: string[]
+          highlights: string[]
+          tips: string | null
+          access_info: string | null
+          duration_key: string | null
           status: 'pending' | 'approved' | 'rejected'
           like_count: number
           created_at: string
@@ -234,8 +299,13 @@ export interface Database {
           location: string
           category: 'city' | 'nature' | 'culture' | 'food'
           photo_url?: string | null
+          photo_urls?: string[]
           cost_level?: 1 | 2 | 3 | null
           season_tags?: string[]
+          highlights?: string[]
+          tips?: string | null
+          access_info?: string | null
+          duration_key?: string | null
           status?: 'pending' | 'approved' | 'rejected'
           like_count?: number
           created_at?: string
@@ -246,11 +316,17 @@ export interface Database {
           location?: string
           category?: 'city' | 'nature' | 'culture' | 'food'
           photo_url?: string | null
+          photo_urls?: string[]
           cost_level?: 1 | 2 | 3 | null
           season_tags?: string[]
+          highlights?: string[]
+          tips?: string | null
+          access_info?: string | null
+          duration_key?: string | null
           status?: 'pending' | 'approved' | 'rejected'
           like_count?: number
         }
+        Relationships: []
       }
     }
     Views: Record<string, never>

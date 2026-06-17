@@ -121,7 +121,7 @@ export async function toggleLike(postId: string): Promise<boolean> {
   const { data: existing, error: checkError } = await supabase
     .from('likes')
     .select('*')
-    .eq('post_id', postId)
+    .eq('post_id', Number(postId))
     .eq('user_id', userId)
     .maybeSingle()
 
@@ -132,7 +132,7 @@ export async function toggleLike(postId: string): Promise<boolean> {
     await supabase
       .from('likes')
       .delete()
-      .eq('post_id', postId)
+      .eq('post_id', Number(postId))
       .eq('user_id', userId)
 
     return false
@@ -153,7 +153,7 @@ export async function fetchComments(postId: string): Promise<Comment[]> {
   const { data, error } = await supabase
     .from('comments')
     .select('*')
-    .eq('post_id', postId)
+    .eq('post_id', Number(postId))
     .order('created_at', { ascending: true })
 
   if (error) throw new Error(error.message)

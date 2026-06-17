@@ -230,32 +230,42 @@ export default function HomeScreen() {
         {userPosts.length > 0 && (
           <View style={styles.userPostsSection}>
             <Text style={styles.userPostsLabel}>{t('travel.userPosts')}</Text>
-            {userPosts.map((post) => (
-              <TouchableOpacity
-                key={post.id}
-                style={styles.userCard}
-                onPress={() => setSelectedPost(post)}
-                activeOpacity={0.85}
-              >
-                {post.photo_url ? (
-                  <Image source={{ uri: post.photo_url }} style={styles.userCardPhoto} resizeMode="cover" />
-                ) : (
-                  <View style={[styles.userCardPhotoPlaceholder, { backgroundColor: '#EEF2FF' }]}>
-                    <Text style={{ fontSize: 32 }}>📍</Text>
-                  </View>
-                )}
-                <View style={styles.userCardBody}>
-                  <Text style={styles.userCardTitle} numberOfLines={1}>{post.title}</Text>
-                  <Text style={styles.userCardLocation}>📍 {post.location}</Text>
-                  <Text style={styles.userCardDesc} numberOfLines={2}>{post.description}</Text>
-                  {isAdmin && (
-                    <View style={styles.adminBadge}>
-                      <Text style={styles.adminBadgeText}>🛡 管理者メニューあり</Text>
+            {userPosts.map((post) => {
+              const coverPhoto = post.photo_urls[0] ?? post.photo_url
+              return (
+                <TouchableOpacity
+                  key={post.id}
+                  style={styles.userCard}
+                  onPress={() => setSelectedPost(post)}
+                  activeOpacity={0.85}
+                >
+                  {coverPhoto ? (
+                    <View>
+                      <Image source={{ uri: coverPhoto }} style={styles.userCardPhoto} resizeMode="cover" />
+                      {post.photo_urls.length > 1 && (
+                        <View style={styles.photoCountBadge}>
+                          <Text style={styles.photoCountText}>📷 {post.photo_urls.length}</Text>
+                        </View>
+                      )}
+                    </View>
+                  ) : (
+                    <View style={[styles.userCardPhotoPlaceholder, { backgroundColor: '#EEF2FF' }]}>
+                      <Text style={{ fontSize: 32 }}>📍</Text>
                     </View>
                   )}
-                </View>
-              </TouchableOpacity>
-            ))}
+                  <View style={styles.userCardBody}>
+                    <Text style={styles.userCardTitle} numberOfLines={1}>{post.title}</Text>
+                    <Text style={styles.userCardLocation}>📍 {post.location}</Text>
+                    <Text style={styles.userCardDesc} numberOfLines={2}>{post.description}</Text>
+                    {isAdmin && (
+                      <View style={styles.adminBadge}>
+                        <Text style={styles.adminBadgeText}>🛡 管理者メニューあり</Text>
+                      </View>
+                    )}
+                  </View>
+                </TouchableOpacity>
+              )
+            })}
           </View>
         )}
 
@@ -681,6 +691,16 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   adminBadgeText: { fontSize: 10, color: '#92400E', fontWeight: '700' },
+  photoCountBadge: {
+    position: 'absolute',
+    bottom: 8,
+    right: 8,
+    backgroundColor: 'rgba(0,0,0,0.55)',
+    borderRadius: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  photoCountText: { color: '#fff', fontSize: 11, fontWeight: '700' },
 
   // Post banner
   postBanner: {
@@ -952,7 +972,13 @@ function UserPostDetail({
 }) {
   const { t } = useTranslation()
   const c = CATEGORY_COLOR_MAP[post.category] ?? '#1E3A5F'
+  const bg = c + '18'
   const isDeleting = deletingId === post.id
+
+  const photos = post.photo_urls.length > 0
+    ? post.photo_urls
+    : (post.photo_url ? [post.photo_url] : [])
+  const highlights = (post.highlights ?? []).filter(Boolean)
 
   return (
     <View style={pd.wrapper}>
@@ -965,12 +991,28 @@ function UserPostDetail({
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Photo */}
-        {post.photo_url ? (
-          <Image source={{ uri: post.photo_url }} style={pd.photo} resizeMode="cover" />
+        {/* Photo carousel or placeholder */}
+        {photos.length > 0 ? (
+          <ScrollView
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            style={pd.photoCarousel}
+          >
+            {photos.map((url, i) => (
+              <Image key={i} source={{ uri: url }} style={pd.carouselPhoto} resizeMode="cover" />
+            ))}
+          </ScrollView>
         ) : (
-          <View style={[pd.photoPlaceholder, { backgroundColor: c + '22' }]}>
+          <View style={[pd.photoPlaceholder, { backgroundColor: bg }]}>
             <Text style={{ fontSize: 48 }}>📍</Text>
+          </View>
+        )}
+        {photos.length > 1 && (
+          <View style={pd.dotRow}>
+            {photos.map((_, i) => (
+              <View key={i} style={pd.dot} />
+            ))}
           </View>
         )}
 
@@ -978,13 +1020,20 @@ function UserPostDetail({
           {/* Location */}
           <Text style={pd.location}>📍 {post.location}</Text>
 
-          {/* Category + Cost */}
+          {/* Category + Cost chips */}
           <View style={pd.metaRow}>
             <View style={[pd.catBadge, { backgroundColor: c }]}>
               <Text style={pd.catBadgeText}>{t(`travel.filter${capitalize(post.category)}`)}</Text>
             </View>
             {post.cost_level && (
-              <Text style={pd.cost}>{t(`travel.cost.${post.cost_level}`)}</Text>
+              <View style={[pd.metaChip, { backgroundColor: bg }]}>
+                <Text style={[pd.metaChipText, { color: c }]}>{t(`travel.cost.${post.cost_level}`)}</Text>
+              </View>
+            )}
+            {post.duration_key && (
+              <View style={[pd.metaChip, { backgroundColor: bg }]}>
+                <Text style={[pd.metaChipText, { color: c }]}>⏱ {t(`travel.duration.${post.duration_key}`)}</Text>
+              </View>
             )}
           </View>
 
@@ -992,8 +1041,8 @@ function UserPostDetail({
           {post.season_tags.length > 0 && (
             <View style={pd.seasonRow}>
               {post.season_tags.map((sk) => (
-                <View key={sk} style={[pd.seasonTag, { borderColor: SEASON_COLOR_MAP[sk] }]}>
-                  <Text style={[pd.seasonTagText, { color: SEASON_COLOR_MAP[sk] }]}>
+                <View key={sk} style={[pd.seasonTag, { borderColor: SEASON_COLOR_MAP[sk] ?? '#999' }]}>
+                  <Text style={[pd.seasonTagText, { color: SEASON_COLOR_MAP[sk] ?? '#999' }]}>
                     {t(`travel.season.${sk}`)}
                   </Text>
                 </View>
@@ -1001,13 +1050,46 @@ function UserPostDetail({
             </View>
           )}
 
+          {/* Access info */}
+          {post.access_info ? (
+            <View style={[pd.infoRow, { backgroundColor: bg }]}>
+              <Text style={[pd.infoIcon]}>🚄</Text>
+              <Text style={pd.infoText}>{post.access_info}</Text>
+            </View>
+          ) : null}
+
           {/* Description */}
-          <Text style={pd.sectionLabel}>📖 紹介</Text>
-          <Text style={pd.desc}>{post.description}</Text>
+          <View style={pd.section}>
+            <Text style={pd.sectionTitle}>📖 {t('travel.aboutLabel')}</Text>
+            <Text style={pd.desc}>{post.description}</Text>
+          </View>
+
+          {/* Highlights */}
+          {highlights.length > 0 && (
+            <View style={pd.section}>
+              <Text style={pd.sectionTitle}>✨ {t('travel.highlightsLabel')}</Text>
+              {highlights.map((h, i) => (
+                <View key={i} style={[pd.highlight, { borderLeftColor: c }]}>
+                  <View style={[pd.hlNum, { backgroundColor: c }]}>
+                    <Text style={pd.hlNumText}>{i + 1}</Text>
+                  </View>
+                  <Text style={pd.hlText}>{h}</Text>
+                </View>
+              ))}
+            </View>
+          )}
+
+          {/* Tips */}
+          {post.tips ? (
+            <View style={[pd.tipBox, { backgroundColor: bg, borderLeftColor: c }]}>
+              <Text style={[pd.tipTitle, { color: c }]}>🇳🇵 {t('travel.tipsLabel')}</Text>
+              <Text style={pd.tipText}>{post.tips}</Text>
+            </View>
+          ) : null}
 
           {/* Posted date */}
           <Text style={pd.date}>
-            投稿日: {new Date(post.created_at).toLocaleDateString('ja-JP')}
+            {new Date(post.created_at).toLocaleDateString('ja-JP')}
           </Text>
 
           {/* Admin controls */}
@@ -1055,34 +1137,88 @@ const pd = StyleSheet.create({
   },
   backBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 13 },
   headerTitle: { color: '#fff', fontSize: 17, fontWeight: 'bold', flex: 1 },
-  photo: { width: '100%', height: 220 },
+
+  // Photo carousel
+  photoCarousel: { height: 240 },
+  carouselPhoto: { width: SW, height: 240 },
   photoPlaceholder: {
     width: '100%',
     height: 160,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  dotRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 5,
+    paddingVertical: 8,
+    backgroundColor: '#fff',
+  },
+  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#CCC' },
+
   body: { padding: 20 },
   location: { fontSize: 13, color: '#888', marginBottom: 10 },
-  metaRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 },
-  catBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 10,
-  },
+
+  metaRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12, flexWrap: 'wrap' },
+  catBadge: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: 10 },
   catBadgeText: { fontSize: 11, color: '#fff', fontWeight: '800' },
-  cost: { fontSize: 14, color: '#555' },
+  metaChip: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10 },
+  metaChipText: { fontSize: 11, fontWeight: '700' },
+
   seasonRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 16 },
-  seasonTag: {
-    borderWidth: 1.5,
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-  },
+  seasonTag: { borderWidth: 1.5, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 3 },
   seasonTagText: { fontSize: 11, fontWeight: '700' },
-  sectionLabel: { fontSize: 13, fontWeight: 'bold', color: '#1a1a2e', marginBottom: 8 },
-  desc: { fontSize: 14, color: '#444', lineHeight: 22, marginBottom: 16 },
-  date: { fontSize: 11, color: '#bbb', marginBottom: 20 },
+
+  // Access info row
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 14,
+    gap: 10,
+  },
+  infoIcon: { fontSize: 18 },
+  infoText: { fontSize: 13, color: '#444', flex: 1 },
+
+  // Content sections
+  section: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+  },
+  sectionTitle: { fontSize: 13, fontWeight: '800', color: '#1a1a2e', marginBottom: 12 },
+  desc: { fontSize: 14, color: '#444', lineHeight: 22 },
+
+  // Highlights
+  highlight: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    borderLeftWidth: 3,
+    paddingLeft: 12,
+    marginBottom: 10,
+    gap: 10,
+  },
+  hlNum: {
+    width: 22, height: 22, borderRadius: 11,
+    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+  },
+  hlNumText: { fontSize: 11, color: '#fff', fontWeight: '800' },
+  hlText: { flex: 1, fontSize: 13, color: '#444', lineHeight: 20 },
+
+  // Tips
+  tipBox: {
+    borderRadius: 16,
+    padding: 16,
+    borderLeftWidth: 4,
+    marginBottom: 12,
+  },
+  tipTitle: { fontSize: 13, fontWeight: '800', marginBottom: 8 },
+  tipText: { fontSize: 13, color: '#555', lineHeight: 20 },
+
+  date: { fontSize: 11, color: '#bbb', marginBottom: 20, textAlign: 'right' },
+
   adminBox: {
     backgroundColor: '#FFF7ED',
     borderRadius: 16,
@@ -1092,19 +1228,9 @@ const pd = StyleSheet.create({
     gap: 10,
   },
   adminTitle: { fontSize: 13, fontWeight: 'bold', color: '#92400E', marginBottom: 4 },
-  editBtn: {
-    backgroundColor: '#1E3A5F',
-    borderRadius: 12,
-    paddingVertical: 12,
-    alignItems: 'center',
-  },
+  editBtn: { backgroundColor: '#1E3A5F', borderRadius: 12, paddingVertical: 12, alignItems: 'center' },
   editBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 14 },
-  deleteBtn: {
-    backgroundColor: '#DC2626',
-    borderRadius: 12,
-    paddingVertical: 12,
-    alignItems: 'center',
-  },
+  deleteBtn: { backgroundColor: '#DC2626', borderRadius: 12, paddingVertical: 12, alignItems: 'center' },
   deleteBtnDisabled: { opacity: 0.6 },
   deleteBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 14 },
 })

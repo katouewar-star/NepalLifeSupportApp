@@ -53,7 +53,7 @@ export async function fetchTrashRules(postalCode: string): Promise<FetchTrashRul
       return { ok: false, error: 'NOT_FOUND' }
     }
 
-    return { ok: true, rules: data as TrashRule[] }
+    return { ok: true, rules: data as unknown as TrashRule[] }
   } catch (e) {
     const msg = e instanceof Error ? e.message : '取得に失敗しました'
     return { ok: false, error: msg }
