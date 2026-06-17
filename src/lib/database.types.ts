@@ -17,6 +17,7 @@ export interface Database {
           language: 'ne' | 'ja'
           postal_code: string | null
           fcm_token: string | null
+          role: 'admin' | 'user'
           created_at: string
         }
         Insert: {
@@ -26,6 +27,7 @@ export interface Database {
           language?: 'ne' | 'ja'
           postal_code?: string | null
           fcm_token?: string | null
+          role?: 'admin' | 'user'
           created_at?: string
         }
         Update: {
@@ -35,6 +37,7 @@ export interface Database {
           language?: 'ne' | 'ja'
           postal_code?: string | null
           fcm_token?: string | null
+          role?: 'admin' | 'user'
         }
       }
       phrasebooks: {

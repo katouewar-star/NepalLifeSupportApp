@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
   StyleSheet,
   Platform,
 } from 'react-native'
-import { useRouter } from 'expo-router'
+import { useRouter, useLocalSearchParams } from 'expo-router'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../src/stores/useAuthStore'
 import {
@@ -18,6 +18,8 @@ import {
   pickTravelImage,
   uploadTravelPhoto,
   createTravelPost,
+  updateTravelPost,
+  fetchTravelPost,
 } from '../src/lib/travel'
 
 const CATEGORIES: { key: TravelCategory; emoji: string; labelKey: string }[] = [
@@ -46,6 +48,8 @@ export default function TravelPostScreen() {
   const { t } = useTranslation()
   const router = useRouter()
   const { user } = useAuthStore()
+  const { postId } = useLocalSearchParams<{ postId?: string }>()
+  const isEdit = !!postId
 
   const [title, setTitle]           = useState('')
   const [location, setLocation]     = useState('')
@@ -54,10 +58,29 @@ export default function TravelPostScreen() {
   const [costLevel, setCost]        = useState<1 | 2 | 3>(2)
   const [seasonTags, setSeasons]    = useState<string[]>([])
   const [imageUri, setImageUri]     = useState<string | null>(null)
+  const [existingPhotoUrl, setExistingPhotoUrl] = useState<string | null>(null)
   const [uploading, setUploading]   = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [loading, setLoading]       = useState(isEdit)
   const [errorMsg, setErrorMsg]     = useState<string | null>(null)
   const [success, setSuccess]       = useState(false)
+
+  // 編集モード: 既存投稿をフォームに読み込む
+  useEffect(() => {
+    if (!postId) return
+    fetchTravelPost(postId)
+      .then((post) => {
+        setTitle(post.title)
+        setLocation(post.location)
+        setDesc(post.description)
+        setCategory(post.category)
+        setCost(post.cost_level ?? 2)
+        setSeasons(post.season_tags)
+        setExistingPhotoUrl(post.photo_url)
+      })
+      .catch((e) => setErrorMsg(e.message))
+      .finally(() => setLoading(false))
+  }, [postId])
 
   function toggleSeason(key: string) {
     setSeasons((prev) =>
@@ -68,7 +91,10 @@ export default function TravelPostScreen() {
   async function handlePickImage() {
     try {
       const uri = await pickTravelImage()
-      if (uri) setImageUri(uri)
+      if (uri) {
+        setImageUri(uri)
+        setExistingPhotoUrl(null)
+      }
     } catch (e: unknown) {
       setErrorMsg(e instanceof Error ? e.message : String(e))
     }
@@ -81,7 +107,6 @@ export default function TravelPostScreen() {
       setErrorMsg('ログインが必要です / Login required')
       return
     }
-
     if (!title.trim() || !location.trim() || !description.trim()) {
       setErrorMsg(t('travel.post.inputErrorMsg'))
       return
@@ -89,15 +114,15 @@ export default function TravelPostScreen() {
 
     try {
       setSubmitting(true)
-      let photoUrl: string | null = null
 
+      let photoUrl: string | null = existingPhotoUrl
       if (imageUri) {
         setUploading(true)
         photoUrl = await uploadTravelPhoto(imageUri)
         setUploading(false)
       }
 
-      await createTravelPost({
+      const params = {
         title,
         description,
         location,
@@ -105,12 +130,18 @@ export default function TravelPostScreen() {
         photo_url: photoUrl,
         cost_level: costLevel,
         season_tags: seasonTags,
-      })
+      }
+
+      if (isEdit && postId) {
+        await updateTravelPost(postId, params)
+      } else {
+        await createTravelPost(params)
+      }
 
       setSuccess(true)
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e)
-      console.error('[TravelPost] 投稿エラー:', msg)
+      console.error('[TravelPost] エラー:', msg)
       setErrorMsg(msg || t('travel.post.errorDefault'))
     } finally {
       setSubmitting(false)
@@ -118,33 +149,45 @@ export default function TravelPostScreen() {
     }
   }
 
-  // 成功画面
+  if (loading) {
+    return (
+      <View style={[s.wrapper, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#1E3A5F" />
+      </View>
+    )
+  }
+
   if (success) {
     return (
       <View style={s.wrapper}>
         <View style={s.header}>
-          <Text style={s.headerTitle}>✈️ {t('travel.post.title')}</Text>
+          <Text style={s.headerTitle}>✈️ {isEdit ? '編集完了' : t('travel.post.title')}</Text>
         </View>
         <View style={s.successBox}>
           <Text style={s.successIcon}>✅</Text>
           <Text style={s.successTitle}>{t('travel.post.successTitle')}</Text>
-          <Text style={s.successMsg}>{t('travel.post.successMsg')}</Text>
+          <Text style={s.successMsg}>
+            {isEdit ? '投稿を更新しました！' : t('travel.post.successMsg')}
+          </Text>
           <TouchableOpacity style={s.successBtn} onPress={() => router.back()}>
-            <Text style={s.successBtnText}>← ホームへ戻る</Text>
+            <Text style={s.successBtnText}>← 戻る</Text>
           </TouchableOpacity>
         </View>
       </View>
     )
   }
 
+  const photoSource = imageUri ?? existingPhotoUrl
+
   return (
     <View style={s.wrapper}>
-      {/* Header */}
       <View style={s.header}>
         <TouchableOpacity style={s.closeBtn} onPress={() => router.back()}>
           <Text style={s.closeBtnText}>{t('travel.post.back')}</Text>
         </TouchableOpacity>
-        <Text style={s.headerTitle}>✈️ {t('travel.post.title')}</Text>
+        <Text style={s.headerTitle}>
+          ✈️ {isEdit ? '投稿を編集' : t('travel.post.title')}
+        </Text>
       </View>
 
       <ScrollView
@@ -152,7 +195,6 @@ export default function TravelPostScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Error banner */}
         {errorMsg && (
           <View style={s.errorBanner}>
             <Text style={s.errorBannerText}>⚠️ {errorMsg}</Text>
@@ -161,8 +203,8 @@ export default function TravelPostScreen() {
 
         {/* Photo picker */}
         <TouchableOpacity style={s.photoPicker} onPress={handlePickImage} activeOpacity={0.8}>
-          {imageUri ? (
-            <Image source={{ uri: imageUri }} style={s.photoPreview} resizeMode="cover" />
+          {photoSource ? (
+            <Image source={{ uri: photoSource }} style={s.photoPreview} resizeMode="cover" />
           ) : (
             <View style={s.photoPlaceholder}>
               <Text style={s.photoPlaceholderIcon}>📷</Text>
@@ -170,13 +212,12 @@ export default function TravelPostScreen() {
             </View>
           )}
         </TouchableOpacity>
-        {imageUri && (
-          <TouchableOpacity style={s.removePhoto} onPress={() => setImageUri(null)}>
+        {photoSource && (
+          <TouchableOpacity style={s.removePhoto} onPress={() => { setImageUri(null); setExistingPhotoUrl(null) }}>
             <Text style={s.removePhotoText}>{t('travel.post.removePhoto')}</Text>
           </TouchableOpacity>
         )}
 
-        {/* Title */}
         <Text style={s.label}>{t('travel.post.spotName')} <Text style={s.required}>*</Text></Text>
         <TextInput
           style={s.input}
@@ -187,7 +228,6 @@ export default function TravelPostScreen() {
           maxLength={60}
         />
 
-        {/* Location */}
         <Text style={s.label}>{t('travel.post.locationLabel')} <Text style={s.required}>*</Text></Text>
         <TextInput
           style={s.input}
@@ -198,7 +238,6 @@ export default function TravelPostScreen() {
           maxLength={60}
         />
 
-        {/* Description */}
         <Text style={s.label}>{t('travel.post.descLabel')} <Text style={s.required}>*</Text></Text>
         <TextInput
           style={[s.input, s.textarea]}
@@ -212,7 +251,6 @@ export default function TravelPostScreen() {
         />
         <Text style={s.charCount}>{description.length} / 500</Text>
 
-        {/* Category */}
         <Text style={s.label}>{t('travel.post.categoryLabel')}</Text>
         <View style={s.pillRow}>
           {CATEGORIES.map((c) => {
@@ -220,10 +258,7 @@ export default function TravelPostScreen() {
             return (
               <TouchableOpacity
                 key={c.key}
-                style={[
-                  s.pill,
-                  active && { backgroundColor: CATEGORY_COLOR[c.key], borderColor: CATEGORY_COLOR[c.key] },
-                ]}
+                style={[s.pill, active && { backgroundColor: CATEGORY_COLOR[c.key], borderColor: CATEGORY_COLOR[c.key] }]}
                 onPress={() => setCategory(c.key)}
                 activeOpacity={0.8}
               >
@@ -234,7 +269,6 @@ export default function TravelPostScreen() {
           })}
         </View>
 
-        {/* Cost level */}
         <Text style={s.label}>{t('travel.post.costLabel')}</Text>
         <View style={s.pillRow}>
           {COST_LEVELS.map((c) => {
@@ -252,7 +286,6 @@ export default function TravelPostScreen() {
           })}
         </View>
 
-        {/* Season tags */}
         <Text style={s.label}>{t('travel.post.seasonLabel')}</Text>
         <View style={s.pillRow}>
           {SEASON_KEYS.map((key) => {
@@ -272,7 +305,6 @@ export default function TravelPostScreen() {
           })}
         </View>
 
-        {/* Submit */}
         <TouchableOpacity
           style={[s.submitBtn, (submitting || uploading) && s.submitBtnDisabled]}
           onPress={handleSubmit}
@@ -283,11 +315,13 @@ export default function TravelPostScreen() {
             <View style={s.submitLoading}>
               <ActivityIndicator color="#fff" />
               <Text style={s.submitBtnText}>
-                {uploading ? t('travel.post.uploading') : t('travel.post.submit')}
+                {uploading ? t('travel.post.uploading') : (isEdit ? '更新中...' : t('travel.post.submit'))}
               </Text>
             </View>
           ) : (
-            <Text style={s.submitBtnText}>{t('travel.post.submit')}</Text>
+            <Text style={s.submitBtnText}>
+              {isEdit ? '更新する' : t('travel.post.submit')}
+            </Text>
           )}
         </TouchableOpacity>
 
@@ -299,7 +333,6 @@ export default function TravelPostScreen() {
 
 const s = StyleSheet.create({
   wrapper: { flex: 1, backgroundColor: '#F0F4FF' },
-
   header: {
     backgroundColor: '#1E3A5F',
     paddingTop: Platform.OS === 'ios' ? 56 : 42,
@@ -317,9 +350,7 @@ const s = StyleSheet.create({
   },
   closeBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 13 },
   headerTitle: { color: '#fff', fontSize: 17, fontWeight: 'bold' },
-
   scroll: { padding: 20 },
-
   errorBanner: {
     backgroundColor: '#FEE2E2',
     borderRadius: 12,
@@ -329,7 +360,6 @@ const s = StyleSheet.create({
     borderLeftColor: '#DC2626',
   },
   errorBannerText: { color: '#DC2626', fontSize: 13, fontWeight: '600' },
-
   photoPicker: {
     borderRadius: 16,
     overflow: 'hidden',
@@ -341,15 +371,9 @@ const s = StyleSheet.create({
     borderStyle: 'dashed',
   },
   photoPreview: { width: '100%', height: '100%' },
-  photoPlaceholder: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
+  photoPlaceholder: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 8 },
   photoPlaceholderIcon: { fontSize: 40 },
   photoPlaceholderText: { fontSize: 14, color: '#aaa', fontWeight: '600' },
-
   removePhoto: {
     alignSelf: 'flex-end',
     marginBottom: 16,
@@ -359,16 +383,8 @@ const s = StyleSheet.create({
     borderRadius: 10,
   },
   removePhotoText: { color: '#DC2626', fontSize: 12, fontWeight: '600' },
-
-  label: {
-    fontSize: 13,
-    fontWeight: 'bold',
-    color: '#1a1a2e',
-    marginBottom: 6,
-    marginTop: 16,
-  },
+  label: { fontSize: 13, fontWeight: 'bold', color: '#1a1a2e', marginBottom: 6, marginTop: 16 },
   required: { color: '#DC2626' },
-
   input: {
     backgroundColor: '#fff',
     borderRadius: 12,
@@ -379,22 +395,9 @@ const s = StyleSheet.create({
     fontSize: 14,
     color: '#1a1a2e',
   },
-  textarea: {
-    minHeight: 100,
-    textAlignVertical: 'top',
-  },
-  charCount: {
-    fontSize: 11,
-    color: '#aaa',
-    textAlign: 'right',
-    marginTop: 4,
-  },
-
-  pillRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
+  textarea: { minHeight: 100, textAlignVertical: 'top' },
+  charCount: { fontSize: 11, color: '#aaa', textAlign: 'right', marginTop: 4 },
+  pillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   pill: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -410,7 +413,6 @@ const s = StyleSheet.create({
   pillEmoji: { fontSize: 13 },
   pillText: { fontSize: 12, color: '#555', fontWeight: '600' },
   pillTextActive: { color: '#fff' },
-
   submitBtn: {
     marginTop: 28,
     backgroundColor: '#1E3A5F',
@@ -421,15 +423,7 @@ const s = StyleSheet.create({
   submitBtnDisabled: { opacity: 0.6 },
   submitLoading: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   submitBtnText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
-
-  // 成功画面
-  successBox: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 32,
-    gap: 16,
-  },
+  successBox: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, gap: 16 },
   successIcon: { fontSize: 64 },
   successTitle: { fontSize: 22, fontWeight: 'bold', color: '#1a1a2e' },
   successMsg: { fontSize: 15, color: '#555', textAlign: 'center', lineHeight: 22 },

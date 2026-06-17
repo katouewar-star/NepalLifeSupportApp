@@ -22,10 +22,16 @@ export default function RootLayout() {
             refreshToken: session.refresh_token,
           })
           const user = session.user
+          const { data: profile } = await supabase
+            .from('users')
+            .select('role')
+            .eq('id', user.id)
+            .single()
           setUser({
             id: user.id,
             email: user.email!,
             name: user.user_metadata?.name ?? '',
+            role: (profile?.role as 'admin' | 'user') ?? 'user',
           })
         }
         // 初回イベント処理後にローディング解除

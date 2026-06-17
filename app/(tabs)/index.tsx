@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import {
+  ActivityIndicator,
   Dimensions,
   Image,
   Modal,
@@ -22,6 +23,7 @@ import {
   DESTINATIONS,
   filterDestinations,
   fetchTravelPosts,
+  adminDeleteTravelPost,
   TravelCategory,
   TravelDestination,
   TravelPost,
@@ -65,6 +67,9 @@ export default function HomeScreen() {
   const [selected, setSelected]   = useState<TravelDestination | null>(null)
   const [menuOpen, setMenuOpen]   = useState(false)
   const [userPosts, setUserPosts] = useState<TravelPost[]>([])
+  const [selectedPost, setSelectedPost] = useState<TravelPost | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const isAdmin = user?.role === 'admin'
 
   const featured = useMemo(
     () => DESTINATIONS.filter((d) => FEATURED_IDS.includes(d.id)),
@@ -226,7 +231,12 @@ export default function HomeScreen() {
           <View style={styles.userPostsSection}>
             <Text style={styles.userPostsLabel}>{t('travel.userPosts')}</Text>
             {userPosts.map((post) => (
-              <View key={post.id} style={styles.userCard}>
+              <TouchableOpacity
+                key={post.id}
+                style={styles.userCard}
+                onPress={() => setSelectedPost(post)}
+                activeOpacity={0.85}
+              >
                 {post.photo_url ? (
                   <Image source={{ uri: post.photo_url }} style={styles.userCardPhoto} resizeMode="cover" />
                 ) : (
@@ -238,8 +248,13 @@ export default function HomeScreen() {
                   <Text style={styles.userCardTitle} numberOfLines={1}>{post.title}</Text>
                   <Text style={styles.userCardLocation}>📍 {post.location}</Text>
                   <Text style={styles.userCardDesc} numberOfLines={2}>{post.description}</Text>
+                  {isAdmin && (
+                    <View style={styles.adminBadge}>
+                      <Text style={styles.adminBadgeText}>🛡 管理者メニューあり</Text>
+                    </View>
+                  )}
                 </View>
-              </View>
+              </TouchableOpacity>
             ))}
           </View>
         )}
@@ -346,6 +361,38 @@ export default function HomeScreen() {
         onSignOut={handleSignOut}
         userName={user?.name}
       />
+
+      {/* ── User Post Detail Modal ────────────────────── */}
+      <Modal
+        visible={!!selectedPost}
+        animationType="slide"
+        onRequestClose={() => setSelectedPost(null)}
+      >
+        {selectedPost && (
+          <UserPostDetail
+            post={selectedPost}
+            isAdmin={isAdmin}
+            deletingId={deletingId}
+            onClose={() => setSelectedPost(null)}
+            onEdit={() => {
+              setSelectedPost(null)
+              router.push((`/travel-post?postId=${selectedPost.id}`) as any)
+            }}
+            onDelete={async () => {
+              setDeletingId(selectedPost.id)
+              try {
+                await adminDeleteTravelPost(selectedPost.id)
+                setSelectedPost(null)
+                loadUserPosts()
+              } catch (e) {
+                console.error('削除エラー:', e)
+              } finally {
+                setDeletingId(null)
+              }
+            }}
+          />
+        )}
+      </Modal>
     </View>
   )
 }
@@ -625,6 +672,15 @@ const styles = StyleSheet.create({
   userCardTitle: { fontSize: 15, fontWeight: '800', color: '#1a1a2e', marginBottom: 3 },
   userCardLocation: { fontSize: 11, color: '#999', marginBottom: 5 },
   userCardDesc: { fontSize: 12, color: '#666', lineHeight: 18 },
+  adminBadge: {
+    alignSelf: 'flex-start',
+    marginTop: 6,
+    backgroundColor: '#FEF3C7',
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  adminBadgeText: { fontSize: 10, color: '#92400E', fontWeight: '700' },
 
   // Post banner
   postBanner: {
@@ -868,4 +924,187 @@ const d = StyleSheet.create({
     marginHorizontal: 16,
     marginBottom: 8,
   },
+})
+
+// ─── User Post Detail ──────────────────────────────────────────────────────────
+
+const CATEGORY_COLOR_MAP: Record<string, string> = {
+  city: '#6D28D9', nature: '#059669', culture: '#DC2626', food: '#D97706',
+}
+const SEASON_COLOR_MAP: Record<string, string> = {
+  spring: '#EC4899', summer: '#F59E0B', autumn: '#EA580C', winter: '#3B82F6',
+}
+
+function UserPostDetail({
+  post,
+  isAdmin,
+  deletingId,
+  onClose,
+  onEdit,
+  onDelete,
+}: {
+  post: TravelPost
+  isAdmin: boolean
+  deletingId: string | null
+  onClose: () => void
+  onEdit: () => void
+  onDelete: () => void
+}) {
+  const { t } = useTranslation()
+  const c = CATEGORY_COLOR_MAP[post.category] ?? '#1E3A5F'
+  const isDeleting = deletingId === post.id
+
+  return (
+    <View style={pd.wrapper}>
+      {/* Header */}
+      <View style={[pd.header, { backgroundColor: c }]}>
+        <TouchableOpacity style={pd.backBtn} onPress={onClose}>
+          <Text style={pd.backBtnText}>← {t('travel.close')}</Text>
+        </TouchableOpacity>
+        <Text style={pd.headerTitle} numberOfLines={1}>{post.title}</Text>
+      </View>
+
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Photo */}
+        {post.photo_url ? (
+          <Image source={{ uri: post.photo_url }} style={pd.photo} resizeMode="cover" />
+        ) : (
+          <View style={[pd.photoPlaceholder, { backgroundColor: c + '22' }]}>
+            <Text style={{ fontSize: 48 }}>📍</Text>
+          </View>
+        )}
+
+        <View style={pd.body}>
+          {/* Location */}
+          <Text style={pd.location}>📍 {post.location}</Text>
+
+          {/* Category + Cost */}
+          <View style={pd.metaRow}>
+            <View style={[pd.catBadge, { backgroundColor: c }]}>
+              <Text style={pd.catBadgeText}>{t(`travel.filter${capitalize(post.category)}`)}</Text>
+            </View>
+            {post.cost_level && (
+              <Text style={pd.cost}>{t(`travel.cost.${post.cost_level}`)}</Text>
+            )}
+          </View>
+
+          {/* Season tags */}
+          {post.season_tags.length > 0 && (
+            <View style={pd.seasonRow}>
+              {post.season_tags.map((sk) => (
+                <View key={sk} style={[pd.seasonTag, { borderColor: SEASON_COLOR_MAP[sk] }]}>
+                  <Text style={[pd.seasonTagText, { color: SEASON_COLOR_MAP[sk] }]}>
+                    {t(`travel.season.${sk}`)}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          )}
+
+          {/* Description */}
+          <Text style={pd.sectionLabel}>📖 紹介</Text>
+          <Text style={pd.desc}>{post.description}</Text>
+
+          {/* Posted date */}
+          <Text style={pd.date}>
+            投稿日: {new Date(post.created_at).toLocaleDateString('ja-JP')}
+          </Text>
+
+          {/* Admin controls */}
+          {isAdmin && (
+            <View style={pd.adminBox}>
+              <Text style={pd.adminTitle}>🛡 管理者メニュー</Text>
+              <TouchableOpacity style={pd.editBtn} onPress={onEdit}>
+                <Text style={pd.editBtnText}>✏️ 編集する</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[pd.deleteBtn, isDeleting && pd.deleteBtnDisabled]}
+                onPress={onDelete}
+                disabled={isDeleting}
+              >
+                {isDeleting
+                  ? <ActivityIndicator color="#fff" />
+                  : <Text style={pd.deleteBtnText}>🗑 削除する</Text>
+                }
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+
+        <View style={{ height: 40 }} />
+      </ScrollView>
+    </View>
+  )
+}
+
+const pd = StyleSheet.create({
+  wrapper: { flex: 1, backgroundColor: '#F8FAFF' },
+  header: {
+    paddingTop: Platform.OS === 'ios' ? 56 : 42,
+    paddingBottom: 18,
+    paddingHorizontal: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  backBtn: {
+    backgroundColor: 'rgba(255,255,255,0.22)',
+    borderRadius: 14,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  backBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 13 },
+  headerTitle: { color: '#fff', fontSize: 17, fontWeight: 'bold', flex: 1 },
+  photo: { width: '100%', height: 220 },
+  photoPlaceholder: {
+    width: '100%',
+    height: 160,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  body: { padding: 20 },
+  location: { fontSize: 13, color: '#888', marginBottom: 10 },
+  metaRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 },
+  catBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 10,
+  },
+  catBadgeText: { fontSize: 11, color: '#fff', fontWeight: '800' },
+  cost: { fontSize: 14, color: '#555' },
+  seasonRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 16 },
+  seasonTag: {
+    borderWidth: 1.5,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+  },
+  seasonTagText: { fontSize: 11, fontWeight: '700' },
+  sectionLabel: { fontSize: 13, fontWeight: 'bold', color: '#1a1a2e', marginBottom: 8 },
+  desc: { fontSize: 14, color: '#444', lineHeight: 22, marginBottom: 16 },
+  date: { fontSize: 11, color: '#bbb', marginBottom: 20 },
+  adminBox: {
+    backgroundColor: '#FFF7ED',
+    borderRadius: 16,
+    padding: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: '#F59E0B',
+    gap: 10,
+  },
+  adminTitle: { fontSize: 13, fontWeight: 'bold', color: '#92400E', marginBottom: 4 },
+  editBtn: {
+    backgroundColor: '#1E3A5F',
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  editBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 14 },
+  deleteBtn: {
+    backgroundColor: '#DC2626',
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  deleteBtnDisabled: { opacity: 0.6 },
+  deleteBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 14 },
 })

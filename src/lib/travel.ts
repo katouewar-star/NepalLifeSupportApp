@@ -274,3 +274,56 @@ export async function deleteTravelPost(postId: string): Promise<void> {
     .eq('user_id', userId)
   if (error) throw new Error(error.message)
 }
+
+/** Delete any travel post (admin only — RLS enforces this) */
+export async function adminDeleteTravelPost(postId: string): Promise<void> {
+  requireAuth()
+  const { error } = await supabase
+    .from('travel_posts')
+    .delete()
+    .eq('id', postId)
+  if (error) throw new Error(error.message)
+}
+
+/** Update a travel post (owner or admin — RLS enforces this) */
+export async function updateTravelPost(
+  postId: string,
+  params: {
+    title: string
+    description: string
+    location: string
+    category: TravelCategory
+    photo_url: string | null
+    cost_level: 1 | 2 | 3 | null
+    season_tags: string[]
+  }
+): Promise<TravelPost> {
+  requireAuth()
+  const { data, error } = await supabase
+    .from('travel_posts')
+    .update({
+      title: params.title.trim(),
+      description: params.description.trim(),
+      location: params.location.trim(),
+      category: params.category,
+      photo_url: params.photo_url,
+      cost_level: params.cost_level,
+      season_tags: params.season_tags,
+    })
+    .eq('id', postId)
+    .select()
+    .single()
+  if (error) throw new Error(error.message)
+  return dbToTravelPost(data)
+}
+
+/** Fetch a single travel post by ID */
+export async function fetchTravelPost(postId: string): Promise<TravelPost> {
+  const { data, error } = await supabase
+    .from('travel_posts')
+    .select('*')
+    .eq('id', postId)
+    .single()
+  if (error) throw new Error(error.message)
+  return dbToTravelPost(data)
+}

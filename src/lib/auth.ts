@@ -63,7 +63,7 @@ export async function signUp({ email, password, name, language }: SignUpParams):
     }
 
     const user: AppUser | null = data.user
-      ? { id: data.user.id, email: data.user.email ?? email, name: trimmedName }
+      ? { id: data.user.id, email: data.user.email ?? email, name: trimmedName, role: 'user' }
       : null
 
     const session: AppSession | null = data.session
@@ -88,7 +88,7 @@ export async function signIn({ email, password }: SignInParams): Promise<AuthRes
     }
 
     const user: AppUser | null = data.user
-      ? { id: data.user.id, email: data.user.email ?? email, name: data.user.user_metadata?.name ?? '' }
+      ? { id: data.user.id, email: data.user.email ?? email, name: data.user.user_metadata?.name ?? '', role: 'user' }
       : null
 
     const session: AppSession | null = data.session
