@@ -138,6 +138,15 @@ export default function TravelScreen() {
           })}
         </ScrollView>
 
+        {/* ── 投稿ボタン ── */}
+        <TouchableOpacity
+          style={s.postBanner}
+          onPress={() => router.push('/travel-post')}
+          activeOpacity={0.85}
+        >
+          <Text style={s.postBannerText}>＋ スポットを投稿する</Text>
+        </TouchableOpacity>
+
         {/* ── Featured carousel (all view only) ── */}
         {filter === 'all' && (
           <View style={s.featSection}>
@@ -314,15 +323,6 @@ export default function TravelScreen() {
         <View style={{ height: 30 }} />
       </ScrollView>
 
-      {/* ── FAB: 新規投稿 ── */}
-      <TouchableOpacity
-        style={s.fab}
-        onPress={() => router.push('/travel-post')}
-        activeOpacity={0.85}
-      >
-        <Text style={s.fabText}>＋</Text>
-      </TouchableOpacity>
-
       {/* ── Detail Modal ── */}
       <Modal
         visible={!!selected}
@@ -493,24 +493,15 @@ const s = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 12,
   },
-  fab: {
-    position: 'absolute',
-    bottom: 24,
-    right: 20,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+  postBanner: {
+    marginHorizontal: 16,
+    marginBottom: 8,
     backgroundColor: '#1E3A5F',
+    borderRadius: 14,
+    paddingVertical: 14,
     alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 8,
-    zIndex: 100,
   },
-  fabText: { color: '#fff', fontSize: 28, fontWeight: 'bold', lineHeight: 32 },
+  postBannerText: { color: '#fff', fontWeight: 'bold', fontSize: 15 },
 
   // Filter pills
   filterRow: {
