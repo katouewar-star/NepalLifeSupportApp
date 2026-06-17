@@ -99,13 +99,6 @@ export default function TravelScreen() {
         <Text style={s.headerEmoji}>🗾</Text>
         <Text style={s.headerTitle}>{t('travel.title')}</Text>
         <Text style={s.headerSub}>{t('travel.subtitle')}</Text>
-        <TouchableOpacity
-          style={s.postBtn}
-          onPress={() => router.push('/travel-post')}
-          activeOpacity={0.85}
-        >
-          <Text style={s.postBtnText}>＋ {t('travel.newPost')}</Text>
-        </TouchableOpacity>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -321,6 +314,15 @@ export default function TravelScreen() {
         <View style={{ height: 30 }} />
       </ScrollView>
 
+      {/* ── FAB: 新規投稿 ── */}
+      <TouchableOpacity
+        style={s.fab}
+        onPress={() => router.push('/travel-post')}
+        activeOpacity={0.85}
+      >
+        <Text style={s.fabText}>＋</Text>
+      </TouchableOpacity>
+
       {/* ── Detail Modal ── */}
       <Modal
         visible={!!selected}
@@ -491,15 +493,24 @@ const s = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 12,
   },
-  postBtn: {
-    backgroundColor: 'rgba(255,255,255,0.22)',
-    borderRadius: 20,
-    paddingHorizontal: 18,
-    paddingVertical: 9,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.4)',
+  fab: {
+    position: 'absolute',
+    bottom: 24,
+    right: 20,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#1E3A5F',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 8,
+    zIndex: 100,
   },
-  postBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 13 },
+  fabText: { color: '#fff', fontSize: 28, fontWeight: 'bold', lineHeight: 32 },
 
   // Filter pills
   filterRow: {
