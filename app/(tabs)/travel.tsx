@@ -4,6 +4,7 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
+  Pressable,
   Modal,
   Image,
   StyleSheet,
@@ -101,51 +102,51 @@ export default function TravelScreen() {
         <Text style={s.headerSub}>{t('travel.subtitle')}</Text>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {/* ── Category filter pills ── */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={s.filterRow}
-        >
-          {filters.map((f) => {
-            const active = filter === f.key
-            const activeBg =
-              active && f.key !== 'all'
-                ? CATEGORY_COLOR[f.key as TravelCategory]
-                : active
-                ? '#1E3A5F'
-                : '#fff'
-            return (
-              <TouchableOpacity
-                key={f.key}
-                style={[
-                  s.pill,
-                  {
-                    backgroundColor: activeBg,
-                    borderColor: active ? activeBg : '#DDD',
-                  },
-                ]}
-                onPress={() => setFilter(f.key)}
-                activeOpacity={0.8}
-              >
-                <Text style={s.pillEmoji}>{f.emoji}</Text>
-                <Text style={[s.pillText, active && s.pillTextActive]}>
-                  {t(f.labelKey)}
-                </Text>
-              </TouchableOpacity>
-            )
-          })}
-        </ScrollView>
+      {/* ── Category filter pills ── */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={s.filterRow}
+      >
+        {filters.map((f) => {
+          const active = filter === f.key
+          const activeBg =
+            active && f.key !== 'all'
+              ? CATEGORY_COLOR[f.key as TravelCategory]
+              : active
+              ? '#1E3A5F'
+              : '#fff'
+          return (
+            <TouchableOpacity
+              key={f.key}
+              style={[
+                s.pill,
+                {
+                  backgroundColor: activeBg,
+                  borderColor: active ? activeBg : '#DDD',
+                },
+              ]}
+              onPress={() => setFilter(f.key)}
+              activeOpacity={0.8}
+            >
+              <Text style={s.pillEmoji}>{f.emoji}</Text>
+              <Text style={[s.pillText, active && s.pillTextActive]}>
+                {t(f.labelKey)}
+              </Text>
+            </TouchableOpacity>
+          )
+        })}
+      </ScrollView>
 
-        {/* ── 投稿ボタン ── */}
-        <TouchableOpacity
-          style={s.postBanner}
-          onPress={() => router.push('/travel-post' as any)}
-          activeOpacity={0.85}
-        >
-          <Text style={s.postBannerText}>＋ スポットを投稿する</Text>
-        </TouchableOpacity>
+      {/* ── 投稿ボタン ── */}
+      <Pressable
+        style={s.postBanner}
+        onPress={() => router.push('/travel-post' as any)}
+      >
+        <Text style={s.postBannerText}>＋ スポットを投稿する</Text>
+      </Pressable>
+
+      <ScrollView showsVerticalScrollIndicator={false}>
 
         {/* ── Featured carousel (all view only) ── */}
         {filter === 'all' && (
@@ -495,15 +496,16 @@ const s = StyleSheet.create({
   },
   postBanner: {
     marginHorizontal: 16,
-    marginBottom: 8,
+    marginTop: 8,
+    marginBottom: 4,
     backgroundColor: '#E63946',
     borderRadius: 14,
-    paddingVertical: 16,
-    minHeight: 50,
+    paddingVertical: 14,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  postBannerText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+    cursor: 'pointer',
+  } as any,
+  postBannerText: { color: '#fff', fontWeight: 'bold', fontSize: 15 },
 
   // Filter pills
   filterRow: {
