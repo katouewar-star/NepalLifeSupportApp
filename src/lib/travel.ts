@@ -1,3 +1,8 @@
+import { supabase } from '@/lib/supabase'
+import { useAuthStore } from '@/stores/useAuthStore'
+import * as ImagePicker from 'expo-image-picker'
+import type { Database } from '@/lib/database.types'
+
 export type TravelCategory = 'city' | 'nature' | 'culture' | 'food'
 
 export type SeasonKey = 'spring' | 'summer' | 'autumn' | 'winter'
@@ -136,4 +141,133 @@ export function filterDestinations(
   category: 'all' | TravelCategory
 ): TravelDestination[] {
   return category === 'all' ? list : list.filter((d) => d.category === category)
+}
+
+// ── UGC travel posts ──────────────────────────────────────────────────────
+
+type DbTravelPost = Database['public']['Tables']['travel_posts']['Row']
+
+export interface TravelPost {
+  id: string
+  user_id: string
+  title: string
+  description: string
+  location: string
+  category: TravelCategory
+  photo_url: string | null
+  cost_level: 1 | 2 | 3 | null
+  season_tags: string[]
+  status: 'pending' | 'approved' | 'rejected'
+  like_count: number
+  created_at: string
+}
+
+function dbToTravelPost(row: DbTravelPost): TravelPost {
+  return { ...row, id: String(row.id) }
+}
+
+function requireAuth(): string {
+  const { user } = useAuthStore.getState()
+  if (!user) throw new Error('Authentication required')
+  return user.id
+}
+
+/** Fetch all approved travel posts, newest first */
+export async function fetchTravelPosts(
+  category?: TravelCategory
+): Promise<TravelPost[]> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const query: any = (supabase.from('travel_posts') as any)
+    .select('*')
+    .eq('status', 'approved')
+
+  const { data, error } = await (category
+    ? query.eq('category', category)
+    : query
+  ).order('created_at', { ascending: false })
+
+  if (error) throw new Error(error.message)
+  return ((data ?? []) as DbTravelPost[]).map(dbToTravelPost)
+}
+
+/** Upload a photo to Supabase Storage and return the public URL */
+export async function uploadTravelPhoto(
+  imageUri: string
+): Promise<string> {
+  const userId = requireAuth()
+
+  const ext = imageUri.split('.').pop()?.toLowerCase() ?? 'jpg'
+  const path = `${userId}/${Date.now()}.${ext}`
+
+  const response = await fetch(imageUri)
+  const blob = await response.blob()
+
+  const { error } = await supabase.storage
+    .from('travel-photos')
+    .upload(path, blob, { contentType: `image/${ext}`, upsert: false })
+
+  if (error) throw new Error(error.message)
+
+  const { data } = supabase.storage.from('travel-photos').getPublicUrl(path)
+  return data.publicUrl
+}
+
+/** Pick an image from the device library. Returns uri or null if cancelled. */
+export async function pickTravelImage(): Promise<string | null> {
+  const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync()
+  if (status !== 'granted') throw new Error('Gallery permission denied')
+
+  const result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ['images'],
+    allowsEditing: true,
+    aspect: [4, 3],
+    quality: 0.8,
+  })
+
+  if (result.canceled) return null
+  return result.assets[0].uri
+}
+
+/** Create a new travel post. photo_url should be a Storage public URL. */
+export async function createTravelPost(params: {
+  title: string
+  description: string
+  location: string
+  category: TravelCategory
+  photo_url: string | null
+  cost_level: 1 | 2 | 3 | null
+  season_tags: string[]
+}): Promise<TravelPost> {
+  const userId = requireAuth()
+
+  if (!params.title.trim()) throw new Error('title must not be empty')
+  if (!params.description.trim()) throw new Error('description must not be empty')
+  if (!params.location.trim()) throw new Error('location must not be empty')
+
+  const { data, error } = await (supabase.from('travel_posts') as any)
+    .insert({
+      user_id: userId,
+      title: params.title.trim(),
+      description: params.description.trim(),
+      location: params.location.trim(),
+      category: params.category,
+      photo_url: params.photo_url,
+      cost_level: params.cost_level,
+      season_tags: params.season_tags,
+    })
+    .select()
+    .single()
+
+  if (error) throw new Error(error.message)
+  return dbToTravelPost(data as DbTravelPost)
+}
+
+/** Delete own travel post */
+export async function deleteTravelPost(postId: string): Promise<void> {
+  const userId = requireAuth()
+  const { error } = await (supabase.from('travel_posts') as any)
+    .delete()
+    .eq('id', postId)
+    .eq('user_id', userId)
+  if (error) throw new Error(error.message)
 }

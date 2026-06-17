@@ -1,20 +1,24 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
   Modal,
+  Image,
   StyleSheet,
   Dimensions,
   Platform,
 } from 'react-native'
 import { useTranslation } from 'react-i18next'
+import { useRouter } from 'expo-router'
 import {
   DESTINATIONS,
   filterDestinations,
+  fetchTravelPosts,
   TravelCategory,
   TravelDestination,
+  TravelPost,
 } from '../../src/lib/travel'
 
 const { width: SW } = Dimensions.get('window')
@@ -61,9 +65,22 @@ function categoryTransKey(cat: TravelCategory): string {
 
 export default function TravelScreen() {
   const { t } = useTranslation()
+  const router = useRouter()
   const [filter, setFilter] = useState<FilterValue>('all')
   const [selected, setSelected] = useState<TravelDestination | null>(null)
+  const [userPosts, setUserPosts] = useState<TravelPost[]>([])
   const filtered = useMemo(() => filterDestinations(DESTINATIONS, filter), [filter])
+
+  const loadPosts = useCallback(async () => {
+    try {
+      const posts = await fetchTravelPosts(filter === 'all' ? undefined : filter)
+      setUserPosts(posts)
+    } catch {
+      // silently ignore fetch errors
+    }
+  }, [filter])
+
+  useEffect(() => { loadPosts() }, [loadPosts])
 
   const filters: { key: FilterValue; emoji: string; labelKey: string }[] = [
     { key: 'all',     emoji: '🗾',  labelKey: 'travel.filterAll'     },
@@ -82,6 +99,13 @@ export default function TravelScreen() {
         <Text style={s.headerEmoji}>🗾</Text>
         <Text style={s.headerTitle}>{t('travel.title')}</Text>
         <Text style={s.headerSub}>{t('travel.subtitle')}</Text>
+        <TouchableOpacity
+          style={s.postBtn}
+          onPress={() => router.push('/travel-post')}
+          activeOpacity={0.85}
+        >
+          <Text style={s.postBtnText}>＋ {t('travel.newPost')}</Text>
+        </TouchableOpacity>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -170,6 +194,56 @@ export default function TravelScreen() {
                 )
               })}
             </ScrollView>
+          </View>
+        )}
+
+        {/* ── User posts ── */}
+        {userPosts.length > 0 && (
+          <View style={s.userPostsSection}>
+            <Text style={s.sectionLabel}>{t('travel.userPosts')}</Text>
+            {userPosts.map((post) => {
+              const c = CATEGORY_COLOR[post.category]
+              const lc = CATEGORY_LIGHT[post.category]
+              return (
+                <View key={post.id} style={s.userCard}>
+                  {post.photo_url ? (
+                    <Image
+                      source={{ uri: post.photo_url }}
+                      style={s.userCardPhoto}
+                      resizeMode="cover"
+                    />
+                  ) : (
+                    <View style={[s.userCardPhotoPlaceholder, { backgroundColor: lc }]}>
+                      <Text style={{ fontSize: 32 }}>📍</Text>
+                    </View>
+                  )}
+                  <View style={[s.userCardBar, { backgroundColor: c }]} />
+                  <View style={s.userCardBody}>
+                    <View style={s.userCardTop}>
+                      <Text style={s.userCardTitle} numberOfLines={1}>{post.title}</Text>
+                      <View style={[s.catBadge, { backgroundColor: lc }]}>
+                        <Text style={[s.catBadgeText, { color: c }]}>
+                          {t(categoryTransKey(post.category))}
+                        </Text>
+                      </View>
+                    </View>
+                    <Text style={s.userCardLocation}>📍 {post.location}</Text>
+                    <Text style={s.userCardDesc} numberOfLines={2}>{post.description}</Text>
+                    {post.season_tags.length > 0 && (
+                      <View style={s.seasonRow}>
+                        {post.season_tags.map((sk) => (
+                          <View key={sk} style={[s.seasonTag, { borderColor: SEASON_COLOR[sk] + '99' }]}>
+                            <Text style={[s.seasonTagText, { color: SEASON_COLOR[sk] }]}>
+                              {t(`travel.season.${sk}`)}
+                            </Text>
+                          </View>
+                        ))}
+                      </View>
+                    )}
+                  </View>
+                </View>
+              )
+            })}
           </View>
         )}
 
@@ -414,7 +488,17 @@ const s = StyleSheet.create({
     fontSize: 13,
     color: 'rgba(255,255,255,0.68)',
     textAlign: 'center',
+    marginBottom: 12,
   },
+  postBtn: {
+    backgroundColor: 'rgba(255,255,255,0.22)',
+    borderRadius: 20,
+    paddingHorizontal: 18,
+    paddingVertical: 9,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.4)',
+  },
+  postBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 13 },
 
   // Filter pills
   filterRow: {
@@ -585,6 +669,53 @@ const s = StyleSheet.create({
     borderRadius: 10,
   },
   exploreBtnText: { color: '#fff', fontSize: 11, fontWeight: 'bold' },
+
+  // User posts
+  userPostsSection: { paddingHorizontal: 16, paddingTop: 8, gap: 12, marginBottom: 4 },
+  userCard: {
+    backgroundColor: '#fff',
+    borderRadius: 18,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOpacity: 0.07,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 3,
+    marginBottom: 12,
+  },
+  userCardPhoto: { width: '100%', height: 160 },
+  userCardPhotoPlaceholder: {
+    width: '100%',
+    height: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  userCardBar: { height: 4 },
+  userCardBody: { padding: 14 },
+  userCardTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+    gap: 8,
+  },
+  userCardTitle: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#1a1a2e',
+    flex: 1,
+  },
+  userCardLocation: {
+    fontSize: 11,
+    color: '#888',
+    marginBottom: 6,
+  },
+  userCardDesc: {
+    fontSize: 12,
+    color: '#666',
+    lineHeight: 18,
+    marginBottom: 8,
+  },
 
   // Disclaimer
   disclaimer: {

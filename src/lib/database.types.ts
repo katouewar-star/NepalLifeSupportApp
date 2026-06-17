@@ -209,6 +209,48 @@ export interface Database {
         }
       }
     }
+      travel_posts: {
+        Row: {
+          id: number
+          user_id: string
+          title: string
+          description: string
+          location: string
+          category: 'city' | 'nature' | 'culture' | 'food'
+          photo_url: string | null
+          cost_level: 1 | 2 | 3 | null
+          season_tags: string[]
+          status: 'pending' | 'approved' | 'rejected'
+          like_count: number
+          created_at: string
+        }
+        Insert: {
+          id?: number
+          user_id: string
+          title: string
+          description: string
+          location: string
+          category: 'city' | 'nature' | 'culture' | 'food'
+          photo_url?: string | null
+          cost_level?: 1 | 2 | 3 | null
+          season_tags?: string[]
+          status?: 'pending' | 'approved' | 'rejected'
+          like_count?: number
+          created_at?: string
+        }
+        Update: {
+          title?: string
+          description?: string
+          location?: string
+          category?: 'city' | 'nature' | 'culture' | 'food'
+          photo_url?: string | null
+          cost_level?: 1 | 2 | 3 | null
+          season_tags?: string[]
+          status?: 'pending' | 'approved' | 'rejected'
+          like_count?: number
+        }
+      }
+    }
     Views: Record<string, never>
     Functions: Record<string, never>
     Enums: Record<string, never>
