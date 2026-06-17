@@ -971,6 +971,7 @@ function UserPostDetail({
   onDelete: () => void
 }) {
   const { t } = useTranslation()
+  const [photoIdx, setPhotoIdx] = useState(0)
   const c = CATEGORY_COLOR_MAP[post.category] ?? '#1E3A5F'
   const bg = c + '18'
   const isDeleting = deletingId === post.id
@@ -979,6 +980,7 @@ function UserPostDetail({
     ? post.photo_urls
     : (post.photo_url ? [post.photo_url] : [])
   const highlights = (post.highlights ?? []).filter(Boolean)
+  const hlPhotos = post.highlight_photos ?? []
 
   return (
     <View style={pd.wrapper}>
@@ -998,6 +1000,10 @@ function UserPostDetail({
             pagingEnabled
             showsHorizontalScrollIndicator={false}
             style={pd.photoCarousel}
+            onMomentumScrollEnd={(e) => {
+              const idx = Math.round(e.nativeEvent.contentOffset.x / SW)
+              setPhotoIdx(idx)
+            }}
           >
             {photos.map((url, i) => (
               <Image key={i} source={{ uri: url }} style={pd.carouselPhoto} resizeMode="cover" />
@@ -1011,7 +1017,7 @@ function UserPostDetail({
         {photos.length > 1 && (
           <View style={pd.dotRow}>
             {photos.map((_, i) => (
-              <View key={i} style={pd.dot} />
+              <View key={i} style={[pd.dot, i === photoIdx && { backgroundColor: c, width: 16 }]} />
             ))}
           </View>
         )}
@@ -1020,7 +1026,7 @@ function UserPostDetail({
           {/* Location */}
           <Text style={pd.location}>📍 {post.location}</Text>
 
-          {/* Category + Cost chips */}
+          {/* Category + Cost + Duration chips */}
           <View style={pd.metaRow}>
             <View style={[pd.catBadge, { backgroundColor: c }]}>
               <Text style={pd.catBadgeText}>{t(`travel.filter${capitalize(post.category)}`)}</Text>
@@ -1053,7 +1059,7 @@ function UserPostDetail({
           {/* Access info */}
           {post.access_info ? (
             <View style={[pd.infoRow, { backgroundColor: bg }]}>
-              <Text style={[pd.infoIcon]}>🚄</Text>
+              <Text style={pd.infoIcon}>🚄</Text>
               <Text style={pd.infoText}>{post.access_info}</Text>
             </View>
           ) : null}
@@ -1064,18 +1070,30 @@ function UserPostDetail({
             <Text style={pd.desc}>{post.description}</Text>
           </View>
 
-          {/* Highlights */}
+          {/* Highlights with per-highlight photos */}
           {highlights.length > 0 && (
             <View style={pd.section}>
               <Text style={pd.sectionTitle}>✨ {t('travel.highlightsLabel')}</Text>
-              {highlights.map((h, i) => (
-                <View key={i} style={[pd.highlight, { borderLeftColor: c }]}>
-                  <View style={[pd.hlNum, { backgroundColor: c }]}>
-                    <Text style={pd.hlNumText}>{i + 1}</Text>
+              {highlights.map((h, i) => {
+                const hlPhoto = hlPhotos[i] && hlPhotos[i] !== '' ? hlPhotos[i] : null
+                return (
+                  <View key={i} style={pd.hlItem}>
+                    <View style={[pd.highlight, { borderLeftColor: c }]}>
+                      <View style={[pd.hlNum, { backgroundColor: c }]}>
+                        <Text style={pd.hlNumText}>{i + 1}</Text>
+                      </View>
+                      <Text style={pd.hlText}>{h}</Text>
+                    </View>
+                    {hlPhoto && (
+                      <Image
+                        source={{ uri: hlPhoto }}
+                        style={pd.hlPhoto}
+                        resizeMode="cover"
+                      />
+                    )}
                   </View>
-                  <Text style={pd.hlText}>{h}</Text>
-                </View>
-              ))}
+                )
+              })}
             </View>
           )}
 
@@ -1192,12 +1210,13 @@ const pd = StyleSheet.create({
   desc: { fontSize: 14, color: '#444', lineHeight: 22 },
 
   // Highlights
+  hlItem: { marginBottom: 12 },
   highlight: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     borderLeftWidth: 3,
     paddingLeft: 12,
-    marginBottom: 10,
+    marginBottom: 6,
     gap: 10,
   },
   hlNum: {
@@ -1206,6 +1225,12 @@ const pd = StyleSheet.create({
   },
   hlNumText: { fontSize: 11, color: '#fff', fontWeight: '800' },
   hlText: { flex: 1, fontSize: 13, color: '#444', lineHeight: 20 },
+  hlPhoto: {
+    width: '100%',
+    height: 160,
+    borderRadius: 12,
+    marginLeft: 12,
+  },
 
   // Tips
   tipBox: {
