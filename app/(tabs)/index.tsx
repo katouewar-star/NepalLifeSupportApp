@@ -4,6 +4,7 @@ import {
   Image,
   Modal,
   Platform,
+  Pressable,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -196,6 +197,14 @@ export default function HomeScreen() {
             )
           })}
         </ScrollView>
+
+        {/* Post button */}
+        <Pressable
+          style={styles.postBanner}
+          onPress={() => router.push('/travel-post' as any)}
+        >
+          <Text style={styles.postBannerText}>＋ スポットを投稿する</Text>
+        </Pressable>
 
         {/* Destination cards */}
         <View style={styles.cardList}>
@@ -544,6 +553,18 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
   },
   pillText: { fontSize: 12, fontWeight: '700' },
+
+  // Post banner
+  postBanner: {
+    marginHorizontal: 16,
+    marginBottom: 8,
+    backgroundColor: '#E63946',
+    borderRadius: 14,
+    paddingVertical: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  postBannerText: { color: '#fff', fontWeight: 'bold', fontSize: 15 },
 
   // Destination cards
   cardList: { padding: 16, gap: 16 },
