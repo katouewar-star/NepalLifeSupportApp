@@ -254,8 +254,32 @@ export default function HomeScreen() {
                     </View>
                   )}
                   <View style={styles.userCardBody}>
-                    <Text style={styles.userCardTitle} numberOfLines={1}>{post.title}</Text>
+                    {/* Title + category badge */}
+                    <View style={styles.userCardTitleRow}>
+                      <Text style={[styles.userCardTitle, { flex: 1 }]} numberOfLines={1}>{post.title}</Text>
+                      <View style={[styles.userCardCatBadge, { backgroundColor: CAT_COLOR[post.category] }]}>
+                        <Text style={styles.userCardCatText}>{t(`travel.filter${capitalize(post.category)}`)}</Text>
+                      </View>
+                    </View>
                     <Text style={styles.userCardLocation}>📍 {post.location}</Text>
+                    {/* Meta chips row */}
+                    <View style={styles.userCardMetaRow}>
+                      {post.cost_level && (
+                        <View style={styles.userCardChip}>
+                          <Text style={styles.userCardChipText}>{'💴'.repeat(post.cost_level)}</Text>
+                        </View>
+                      )}
+                      {post.duration_key && (
+                        <View style={styles.userCardChip}>
+                          <Text style={styles.userCardChipText}>⏱ {t(`travel.duration.${post.duration_key}`)}</Text>
+                        </View>
+                      )}
+                      {post.season_tags.slice(0, 2).map((sk) => (
+                        <View key={sk} style={[styles.userCardChip, { borderColor: SEASON_COLOR[sk] }]}>
+                          <Text style={[styles.userCardChipText, { color: SEASON_COLOR[sk] }]}>{t(`travel.season.${sk}`)}</Text>
+                        </View>
+                      ))}
+                    </View>
                     <Text style={styles.userCardDesc} numberOfLines={2}>{post.description}</Text>
                     {isAdmin && (
                       <View style={styles.adminBadge}>
@@ -679,8 +703,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   userCardBody: { padding: 12 },
-  userCardTitle: { fontSize: 15, fontWeight: '800', color: '#1a1a2e', marginBottom: 3 },
-  userCardLocation: { fontSize: 11, color: '#999', marginBottom: 5 },
+  userCardTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 3 },
+  userCardTitle: { fontSize: 15, fontWeight: '800', color: '#1a1a2e' },
+  userCardCatBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8 },
+  userCardCatText: { fontSize: 10, color: '#fff', fontWeight: '700' },
+  userCardLocation: { fontSize: 11, color: '#999', marginBottom: 6 },
+  userCardMetaRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 6 },
+  userCardChip: {
+    borderWidth: 1,
+    borderColor: '#DDE3EE',
+    borderRadius: 8,
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+  },
+  userCardChipText: { fontSize: 10, color: '#666', fontWeight: '600' },
   userCardDesc: { fontSize: 12, color: '#666', lineHeight: 18 },
   adminBadge: {
     alignSelf: 'flex-start',
@@ -1105,10 +1141,15 @@ function UserPostDetail({
             </View>
           ) : null}
 
-          {/* Posted date */}
-          <Text style={pd.date}>
-            {new Date(post.created_at).toLocaleDateString('ja-JP')}
-          </Text>
+          {/* Like count + Posted date */}
+          <View style={pd.footerRow}>
+            {post.like_count > 0 && (
+              <Text style={pd.likeCount}>❤️ {post.like_count}</Text>
+            )}
+            <Text style={pd.date}>
+              {new Date(post.created_at).toLocaleDateString('ja-JP')}
+            </Text>
+          </View>
 
           {/* Admin controls */}
           {isAdmin && (
@@ -1172,7 +1213,7 @@ const pd = StyleSheet.create({
     paddingVertical: 8,
     backgroundColor: '#fff',
   },
-  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#CCC' },
+  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#CCC', overflow: 'hidden' },
 
   body: { padding: 20 },
   location: { fontSize: 13, color: '#888', marginBottom: 10 },
@@ -1229,7 +1270,7 @@ const pd = StyleSheet.create({
     width: '100%',
     height: 160,
     borderRadius: 12,
-    marginLeft: 12,
+    marginTop: 4,
   },
 
   // Tips
@@ -1242,7 +1283,9 @@ const pd = StyleSheet.create({
   tipTitle: { fontSize: 13, fontWeight: '800', marginBottom: 8 },
   tipText: { fontSize: 13, color: '#555', lineHeight: 20 },
 
-  date: { fontSize: 11, color: '#bbb', marginBottom: 20, textAlign: 'right' },
+  footerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+  likeCount: { fontSize: 13, color: '#E63946', fontWeight: '700' },
+  date: { fontSize: 11, color: '#bbb', textAlign: 'right' },
 
   adminBox: {
     backgroundColor: '#FFF7ED',
