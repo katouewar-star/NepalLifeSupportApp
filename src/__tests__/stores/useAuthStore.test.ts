@@ -1,4 +1,7 @@
 import { act } from 'react'
+
+jest.mock('@/lib/i18n', () => ({ __esModule: true, default: { changeLanguage: jest.fn() } }))
+
 import { useAuthStore } from '@/stores/useAuthStore'
 
 beforeEach(() => {

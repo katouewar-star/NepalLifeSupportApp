@@ -3,6 +3,7 @@ import {
   View,
   Text,
   ScrollView,
+  FlatList,
   TouchableOpacity,
   Pressable,
   Modal,
@@ -10,6 +11,7 @@ import {
   StyleSheet,
   Dimensions,
   Platform,
+  ListRenderItemInfo,
 } from 'react-native'
 import { useTranslation } from 'react-i18next'
 import { useRouter } from 'expo-router'
@@ -64,6 +66,80 @@ function categoryTransKey(cat: TravelCategory): string {
   return map[cat]
 }
 
+// ── Destination Card ──────────────────────────────────────────────────────────
+
+interface DestinationCardProps {
+  dest: TravelDestination
+  onPress: (dest: TravelDestination) => void
+  t: (key: string) => string
+}
+
+function DestinationCard({ dest, onPress, t }: DestinationCardProps) {
+  const c = CATEGORY_COLOR[dest.category]
+  const lc = CATEGORY_LIGHT[dest.category]
+
+  return (
+    <TouchableOpacity
+      style={s.card}
+      onPress={() => onPress(dest)}
+      activeOpacity={0.78}
+    >
+      <View style={[s.cardBar, { backgroundColor: c }]} />
+      <View style={s.cardBody}>
+        {/* Top row */}
+        <View style={s.cardTop}>
+          <View style={[s.cardEmojiBox, { backgroundColor: lc }]}>
+            <Text style={s.cardEmoji}>{dest.emoji}</Text>
+          </View>
+          <View style={s.cardMid}>
+            <Text style={s.cardName}>
+              {t(`travel.destinations.${dest.id}.name`)}
+            </Text>
+            <Text style={s.cardPref}>
+              {t(`travel.destinations.${dest.id}.prefecture`)}
+            </Text>
+            <View style={[s.catBadge, { backgroundColor: lc }]}>
+              <Text style={[s.catBadgeText, { color: c }]}>
+                {t(categoryTransKey(dest.category))}
+              </Text>
+            </View>
+          </View>
+          <Text style={s.costDots}>{'💴'.repeat(dest.costLevel)}</Text>
+        </View>
+
+        {/* Description preview */}
+        <Text style={s.cardDesc} numberOfLines={2}>
+          {t(`travel.destinations.${dest.id}.desc`)}
+        </Text>
+
+        {/* Bottom row */}
+        <View style={s.cardBottom}>
+          <View style={s.seasonRow}>
+            {dest.seasonKeys.map((sk) => (
+              <View
+                key={sk}
+                style={[s.seasonTag, { borderColor: SEASON_COLOR[sk] + '99' }]}
+              >
+                <Text style={[s.seasonTagText, { color: SEASON_COLOR[sk] }]}>
+                  {t(`travel.season.${sk}`)}
+                </Text>
+              </View>
+            ))}
+          </View>
+          <TouchableOpacity
+            style={[s.exploreBtn, { backgroundColor: c }]}
+            onPress={() => onPress(dest)}
+          >
+            <Text style={s.exploreBtnText}>{t('travel.explore')}</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </TouchableOpacity>
+  )
+}
+
+// ── Main Screen ───────────────────────────────────────────────────────────────
+
 export default function TravelScreen() {
   const { t } = useTranslation()
   const router = useRouter()
@@ -90,6 +166,135 @@ export default function TravelScreen() {
     { key: 'culture', emoji: '⛩️', labelKey: 'travel.filterCulture' },
     { key: 'food',    emoji: '🍜',  labelKey: 'travel.filterFood'    },
   ]
+
+  const handleDestPress = useCallback((dest: TravelDestination) => {
+    setSelected(dest)
+  }, [])
+
+  const renderDestCard = useCallback(
+    ({ item }: ListRenderItemInfo<TravelDestination>) => (
+      <DestinationCard dest={item} onPress={handleDestPress} t={t} />
+    ),
+    [handleDestPress, t]
+  )
+
+  const ListHeader = useMemo(() => (
+    <>
+      {/* ── Featured carousel (all view only) ── */}
+      {filter === 'all' && (
+        <View style={s.featSection}>
+          <Text style={s.sectionLabel}>{t('travel.featured')}</Text>
+          <ScrollView
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+          >
+            {DESTINATIONS.slice(0, 4).map((item) => {
+              const [bgDark, bgLight] = FEATURED_BG[item.category]
+              return (
+                <TouchableOpacity
+                  key={item.id}
+                  style={[s.featCard, { backgroundColor: bgDark }]}
+                  onPress={() => setSelected(item)}
+                  activeOpacity={0.88}
+                >
+                  {/* Decorative circle */}
+                  <View style={[s.featDeco, { backgroundColor: bgLight + '55' }]} />
+
+                  <Text style={s.featEmoji}>{item.emoji}</Text>
+                  <Text style={s.featName}>{t(`travel.destinations.${item.id}.name`)}</Text>
+                  <Text style={s.featPref}>{t(`travel.destinations.${item.id}.prefecture`)}</Text>
+                  <Text style={s.featDesc} numberOfLines={2}>
+                    {t(`travel.destinations.${item.id}.desc`)}
+                  </Text>
+
+                  <View style={s.featSeasons}>
+                    {item.seasonKeys.map((sk) => (
+                      <View
+                        key={sk}
+                        style={[s.featSeason, { backgroundColor: 'rgba(255,255,255,0.22)' }]}
+                      >
+                        <Text style={s.featSeasonText}>{t(`travel.season.${sk}`)}</Text>
+                      </View>
+                    ))}
+                  </View>
+
+                  <View style={s.featFooter}>
+                    <Text style={s.featCost}>{'💴'.repeat(item.costLevel)}</Text>
+                    <View style={s.featBtn}>
+                      <Text style={s.featBtnText}>{t('travel.explore')} →</Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              )
+            })}
+          </ScrollView>
+        </View>
+      )}
+
+      {/* ── User posts ── */}
+      {userPosts.length > 0 && (
+        <View style={s.userPostsSection}>
+          <Text style={s.sectionLabel}>{t('travel.userPosts')}</Text>
+          {userPosts.map((post) => {
+            const c = CATEGORY_COLOR[post.category]
+            const lc = CATEGORY_LIGHT[post.category]
+            return (
+              <View key={post.id} style={s.userCard}>
+                {post.photo_url ? (
+                  <Image
+                    source={{ uri: post.photo_url }}
+                    style={s.userCardPhoto}
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <View style={[s.userCardPhotoPlaceholder, { backgroundColor: lc }]}>
+                    <Text style={{ fontSize: 32 }}>📍</Text>
+                  </View>
+                )}
+                <View style={[s.userCardBar, { backgroundColor: c }]} />
+                <View style={s.userCardBody}>
+                  <View style={s.userCardTop}>
+                    <Text style={s.userCardTitle} numberOfLines={1}>{post.title}</Text>
+                    <View style={[s.catBadge, { backgroundColor: lc }]}>
+                      <Text style={[s.catBadgeText, { color: c }]}>
+                        {t(categoryTransKey(post.category))}
+                      </Text>
+                    </View>
+                  </View>
+                  <Text style={s.userCardLocation}>📍 {post.location}</Text>
+                  <Text style={s.userCardDesc} numberOfLines={2}>{post.description}</Text>
+                  {post.season_tags.length > 0 && (
+                    <View style={s.seasonRow}>
+                      {post.season_tags.map((sk) => (
+                        <View key={sk} style={[s.seasonTag, { borderColor: SEASON_COLOR[sk] + '99' }]}>
+                          <Text style={[s.seasonTagText, { color: SEASON_COLOR[sk] }]}>
+                            {t(`travel.season.${sk}`)}
+                          </Text>
+                        </View>
+                      ))}
+                    </View>
+                  )}
+                </View>
+              </View>
+            )
+          })}
+        </View>
+      )}
+
+      {/* Destination list header */}
+      <View style={{ paddingHorizontal: 16, paddingTop: 8 }} />
+    </>
+  ), [filter, userPosts, t])
+
+  const ListFooter = (
+    <>
+      <View style={s.disclaimer}>
+        <Text style={s.disclaimerText}>ℹ️ {t('travel.disclaimer')}</Text>
+      </View>
+      <View style={{ height: 30 }} />
+    </>
+  )
 
   return (
     <View style={s.wrapper}>
@@ -146,183 +351,16 @@ export default function TravelScreen() {
         <Text style={s.postBannerText}>＋ スポットを投稿する</Text>
       </Pressable>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-
-        {/* ── Featured carousel (all view only) ── */}
-        {filter === 'all' && (
-          <View style={s.featSection}>
-            <Text style={s.sectionLabel}>{t('travel.featured')}</Text>
-            <ScrollView
-              horizontal
-              pagingEnabled
-              showsHorizontalScrollIndicator={false}
-            >
-              {DESTINATIONS.slice(0, 4).map((item) => {
-                const [bgDark, bgLight] = FEATURED_BG[item.category]
-                return (
-                  <TouchableOpacity
-                    key={item.id}
-                    style={[s.featCard, { backgroundColor: bgDark }]}
-                    onPress={() => setSelected(item)}
-                    activeOpacity={0.88}
-                  >
-                    {/* Decorative circle */}
-                    <View style={[s.featDeco, { backgroundColor: bgLight + '55' }]} />
-
-                    <Text style={s.featEmoji}>{item.emoji}</Text>
-                    <Text style={s.featName}>{t(`travel.destinations.${item.id}.name`)}</Text>
-                    <Text style={s.featPref}>{t(`travel.destinations.${item.id}.prefecture`)}</Text>
-                    <Text style={s.featDesc} numberOfLines={2}>
-                      {t(`travel.destinations.${item.id}.desc`)}
-                    </Text>
-
-                    <View style={s.featSeasons}>
-                      {item.seasonKeys.map((sk) => (
-                        <View
-                          key={sk}
-                          style={[s.featSeason, { backgroundColor: 'rgba(255,255,255,0.22)' }]}
-                        >
-                          <Text style={s.featSeasonText}>{t(`travel.season.${sk}`)}</Text>
-                        </View>
-                      ))}
-                    </View>
-
-                    <View style={s.featFooter}>
-                      <Text style={s.featCost}>{'💴'.repeat(item.costLevel)}</Text>
-                      <View style={s.featBtn}>
-                        <Text style={s.featBtnText}>{t('travel.explore')} →</Text>
-                      </View>
-                    </View>
-                  </TouchableOpacity>
-                )
-              })}
-            </ScrollView>
-          </View>
-        )}
-
-        {/* ── User posts ── */}
-        {userPosts.length > 0 && (
-          <View style={s.userPostsSection}>
-            <Text style={s.sectionLabel}>{t('travel.userPosts')}</Text>
-            {userPosts.map((post) => {
-              const c = CATEGORY_COLOR[post.category]
-              const lc = CATEGORY_LIGHT[post.category]
-              return (
-                <View key={post.id} style={s.userCard}>
-                  {post.photo_url ? (
-                    <Image
-                      source={{ uri: post.photo_url }}
-                      style={s.userCardPhoto}
-                      resizeMode="cover"
-                    />
-                  ) : (
-                    <View style={[s.userCardPhotoPlaceholder, { backgroundColor: lc }]}>
-                      <Text style={{ fontSize: 32 }}>📍</Text>
-                    </View>
-                  )}
-                  <View style={[s.userCardBar, { backgroundColor: c }]} />
-                  <View style={s.userCardBody}>
-                    <View style={s.userCardTop}>
-                      <Text style={s.userCardTitle} numberOfLines={1}>{post.title}</Text>
-                      <View style={[s.catBadge, { backgroundColor: lc }]}>
-                        <Text style={[s.catBadgeText, { color: c }]}>
-                          {t(categoryTransKey(post.category))}
-                        </Text>
-                      </View>
-                    </View>
-                    <Text style={s.userCardLocation}>📍 {post.location}</Text>
-                    <Text style={s.userCardDesc} numberOfLines={2}>{post.description}</Text>
-                    {post.season_tags.length > 0 && (
-                      <View style={s.seasonRow}>
-                        {post.season_tags.map((sk) => (
-                          <View key={sk} style={[s.seasonTag, { borderColor: SEASON_COLOR[sk] + '99' }]}>
-                            <Text style={[s.seasonTagText, { color: SEASON_COLOR[sk] }]}>
-                              {t(`travel.season.${sk}`)}
-                            </Text>
-                          </View>
-                        ))}
-                      </View>
-                    )}
-                  </View>
-                </View>
-              )
-            })}
-          </View>
-        )}
-
-        {/* ── Destination cards ── */}
-        <View style={s.listWrap}>
-          {filtered.map((dest) => {
-            const c = CATEGORY_COLOR[dest.category]
-            const lc = CATEGORY_LIGHT[dest.category]
-            return (
-              <TouchableOpacity
-                key={dest.id}
-                style={s.card}
-                onPress={() => setSelected(dest)}
-                activeOpacity={0.78}
-              >
-                <View style={[s.cardBar, { backgroundColor: c }]} />
-                <View style={s.cardBody}>
-                  {/* Top row */}
-                  <View style={s.cardTop}>
-                    <View style={[s.cardEmojiBox, { backgroundColor: lc }]}>
-                      <Text style={s.cardEmoji}>{dest.emoji}</Text>
-                    </View>
-                    <View style={s.cardMid}>
-                      <Text style={s.cardName}>
-                        {t(`travel.destinations.${dest.id}.name`)}
-                      </Text>
-                      <Text style={s.cardPref}>
-                        {t(`travel.destinations.${dest.id}.prefecture`)}
-                      </Text>
-                      <View style={[s.catBadge, { backgroundColor: lc }]}>
-                        <Text style={[s.catBadgeText, { color: c }]}>
-                          {t(categoryTransKey(dest.category))}
-                        </Text>
-                      </View>
-                    </View>
-                    <Text style={s.costDots}>{'💴'.repeat(dest.costLevel)}</Text>
-                  </View>
-
-                  {/* Description preview */}
-                  <Text style={s.cardDesc} numberOfLines={2}>
-                    {t(`travel.destinations.${dest.id}.desc`)}
-                  </Text>
-
-                  {/* Bottom row */}
-                  <View style={s.cardBottom}>
-                    <View style={s.seasonRow}>
-                      {dest.seasonKeys.map((sk) => (
-                        <View
-                          key={sk}
-                          style={[s.seasonTag, { borderColor: SEASON_COLOR[sk] + '99' }]}
-                        >
-                          <Text style={[s.seasonTagText, { color: SEASON_COLOR[sk] }]}>
-                            {t(`travel.season.${sk}`)}
-                          </Text>
-                        </View>
-                      ))}
-                    </View>
-                    <TouchableOpacity
-                      style={[s.exploreBtn, { backgroundColor: c }]}
-                      onPress={() => setSelected(dest)}
-                    >
-                      <Text style={s.exploreBtnText}>{t('travel.explore')}</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            )
-          })}
-        </View>
-
-        {/* ── Disclaimer ── */}
-        <View style={s.disclaimer}>
-          <Text style={s.disclaimerText}>ℹ️ {t('travel.disclaimer')}</Text>
-        </View>
-        <View style={{ height: 30 }} />
-      </ScrollView>
+      {/* ── Destination list (virtualized) ── */}
+      <FlatList
+        data={filtered}
+        keyExtractor={(item) => item.id}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={s.listWrap}
+        renderItem={renderDestCard}
+        ListHeaderComponent={ListHeader}
+        ListFooterComponent={ListFooter}
+      />
 
       {/* ── Detail Modal ── */}
       <Modal
@@ -340,6 +378,8 @@ export default function TravelScreen() {
     </View>
   )
 }
+
+// ── Destination Detail ────────────────────────────────────────────────────────
 
 function DestinationDetail({
   dest,
@@ -601,7 +641,7 @@ const s = StyleSheet.create({
   featBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 13 },
 
   // Destination list
-  listWrap: { paddingHorizontal: 16, paddingTop: 8, gap: 12 },
+  listWrap: { paddingHorizontal: 16, gap: 12, paddingBottom: 16 },
   card: {
     backgroundColor: '#fff',
     borderRadius: 18,

@@ -14,6 +14,7 @@ jest.mock('@/lib/community', () => ({
   toggleLike:     jest.fn(),
   fetchComments:  jest.fn().mockResolvedValue([]),
   addComment:     jest.fn(),
+  POSTS_PAGE_SIZE: 20,
 }))
 
 jest.mock('@/stores/useAuthStore', () => ({
@@ -58,6 +59,9 @@ function resetStore() {
   useCommunityStore.setState({
     posts:            [],
     loading:          false,
+    loadingMore:      false,
+    hasMore:          true,
+    page:             0,
     error:            null,
     selectedCategory: 'all',
     comments:         {},
@@ -115,10 +119,10 @@ describe('loadPosts', () => {
     expect(useCommunityStore.getState().loading).toBe(false)
   })
 
-  it('passes category filter to fetchPosts', async () => {
+  it('passes category filter and page 0 to fetchPosts', async () => {
     mockFetchPosts.mockResolvedValue([])
     await useCommunityStore.getState().loadPosts('qa')
-    expect(mockFetchPosts).toHaveBeenCalledWith('qa')
+    expect(mockFetchPosts).toHaveBeenCalledWith('qa', 0)
   })
 
   it('sets error on failure and loading stays false', async () => {
@@ -147,13 +151,13 @@ describe('setCategory', () => {
   it('triggers a loadPosts call with the new category', () => {
     mockFetchPosts.mockResolvedValue([])
     useCommunityStore.getState().setCategory('event')
-    expect(mockFetchPosts).toHaveBeenCalledWith('event')
+    expect(mockFetchPosts).toHaveBeenCalledWith('event', 0)
   })
 
   it('calls loadPosts with undefined when category is all', () => {
     mockFetchPosts.mockResolvedValue([])
     useCommunityStore.getState().setCategory('all')
-    expect(mockFetchPosts).toHaveBeenCalledWith(undefined)
+    expect(mockFetchPosts).toHaveBeenCalledWith(undefined, 0)
   })
 })
 

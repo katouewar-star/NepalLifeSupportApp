@@ -10,6 +10,28 @@ import React from 'react'
 import { render, fireEvent, waitFor } from '@testing-library/react-native'
 import RegisterScreen from '@/screens/auth/RegisterScreen'
 
+// react-i18next をモック（翻訳キー→日本語文字列、{{min}}補間対応）
+jest.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string, params?: Record<string, string | number>) => {
+      const map: Record<string, string> = {
+        'auth.register.namePlaceholder': '名前',
+        'auth.register.emailPlaceholder': 'メールアドレス',
+        'auth.register.footerLink': 'ログインはこちら',
+        'auth.register.errorName': '名前を入力してください',
+      }
+      if (key === 'auth.register.passwordPlaceholder') {
+        return `パスワード（${params?.min ?? ''}文字以上）`
+      }
+      if (key === 'auth.register.errorPassword') {
+        return `パスワードは${params?.min ?? ''}文字以上で入力してください`
+      }
+      return map[key] ?? key
+    },
+    i18n: { changeLanguage: jest.fn() },
+  }),
+}))
+
 jest.mock('@/lib/auth', () => ({
   signUp: jest.fn(),
   PASSWORD_MIN_LENGTH: 8,

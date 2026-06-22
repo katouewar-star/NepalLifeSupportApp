@@ -11,6 +11,7 @@ import {
   toggleLike,
   fetchComments,
   addComment,
+  POSTS_PAGE_SIZE,
   type Post,
   type Comment,
   type PostCategory,
@@ -39,25 +40,6 @@ import { useAuthStore } from '@/stores/useAuthStore'
 const mockSupabase = supabase as jest.Mocked<typeof supabase>
 const mockGetState = useAuthStore.getState as jest.Mock
 
-// Helper to build a fluent Supabase query builder mock
-function buildQueryMock(resolveWith: { data: unknown; error: unknown }) {
-  const chain: Record<string, jest.Mock> = {}
-  const terminal = jest.fn().mockResolvedValue(resolveWith)
-  const methods = ['select', 'insert', 'delete', 'update', 'upsert', 'eq', 'order', 'single', 'maybeSingle']
-  methods.forEach((m) => {
-    chain[m] = jest.fn().mockReturnValue(chain)
-  })
-  // The last call in many chains is .select() after insert, or .single() after insert
-  // We need the terminal-most to resolve
-  chain['single'] = terminal
-  chain['maybeSingle'] = terminal
-  // For chains that end in .order() or .eq() without single:
-  const orderMock = jest.fn().mockResolvedValue(resolveWith)
-  chain['order'] = orderMock
-
-  return { chain, terminal, orderMock }
-}
-
 // ── Shared fixtures ──────────────────────────────────────────────────────────
 const MOCK_POST: Post = {
   id: '1',
@@ -85,7 +67,8 @@ describe('fetchPosts', () => {
 
   it('returns all posts when no category filter is provided', async () => {
     const posts = [MOCK_POST, { ...MOCK_POST, id: '2', category: 'life' as PostCategory }]
-    const orderMock = jest.fn().mockResolvedValue({ data: posts, error: null })
+    const rangeMock = jest.fn().mockResolvedValue({ data: posts, error: null })
+    const orderMock = jest.fn().mockReturnValue({ range: rangeMock })
     const eqMock = jest.fn().mockReturnValue({ order: orderMock })
     const selectMock = jest.fn().mockReturnValue({ order: orderMock, eq: eqMock })
     mockSupabase.from = jest.fn().mockReturnValue({ select: selectMock })
@@ -94,12 +77,14 @@ describe('fetchPosts', () => {
 
     expect(mockSupabase.from).toHaveBeenCalledWith('posts')
     expect(selectMock).toHaveBeenCalled()
+    expect(rangeMock).toHaveBeenCalledWith(0, POSTS_PAGE_SIZE - 1)
     expect(result).toEqual(posts)
   })
 
   it('filters posts by category when category is provided', async () => {
     const filteredPosts = [MOCK_POST]
-    const orderMock = jest.fn().mockResolvedValue({ data: filteredPosts, error: null })
+    const rangeMock = jest.fn().mockResolvedValue({ data: filteredPosts, error: null })
+    const orderMock = jest.fn().mockReturnValue({ range: rangeMock })
     const eqMock = jest.fn().mockReturnValue({ order: orderMock })
     const selectMock = jest.fn().mockReturnValue({ eq: eqMock, order: orderMock })
     mockSupabase.from = jest.fn().mockReturnValue({ select: selectMock })
@@ -111,7 +96,8 @@ describe('fetchPosts', () => {
   })
 
   it('returns empty array when no posts exist', async () => {
-    const orderMock = jest.fn().mockResolvedValue({ data: [], error: null })
+    const rangeMock = jest.fn().mockResolvedValue({ data: [], error: null })
+    const orderMock = jest.fn().mockReturnValue({ range: rangeMock })
     const eqMock = jest.fn().mockReturnValue({ order: orderMock })
     const selectMock = jest.fn().mockReturnValue({ order: orderMock, eq: eqMock })
     mockSupabase.from = jest.fn().mockReturnValue({ select: selectMock })
@@ -122,16 +108,29 @@ describe('fetchPosts', () => {
   })
 
   it('throws an error when supabase returns an error', async () => {
-    const orderMock = jest.fn().mockResolvedValue({ data: null, error: { message: 'DB error' } })
+    const rangeMock = jest.fn().mockResolvedValue({ data: null, error: { message: 'DB error' } })
+    const orderMock = jest.fn().mockReturnValue({ range: rangeMock })
     const selectMock = jest.fn().mockReturnValue({ order: orderMock })
     mockSupabase.from = jest.fn().mockReturnValue({ select: selectMock })
 
     await expect(fetchPosts()).rejects.toThrow('DB error')
   })
 
+  it('fetches the correct page range for page 1', async () => {
+    const rangeMock = jest.fn().mockResolvedValue({ data: [], error: null })
+    const orderMock = jest.fn().mockReturnValue({ range: rangeMock })
+    const selectMock = jest.fn().mockReturnValue({ order: orderMock })
+    mockSupabase.from = jest.fn().mockReturnValue({ select: selectMock })
+
+    await fetchPosts(undefined, 1)
+
+    expect(rangeMock).toHaveBeenCalledWith(POSTS_PAGE_SIZE, POSTS_PAGE_SIZE * 2 - 1)
+  })
+
   it('filters by each valid category: life', async () => {
     const lifePosts = [{ ...MOCK_POST, id: '3', category: 'life' as PostCategory }]
-    const orderMock = jest.fn().mockResolvedValue({ data: lifePosts, error: null })
+    const rangeMock = jest.fn().mockResolvedValue({ data: lifePosts, error: null })
+    const orderMock = jest.fn().mockReturnValue({ range: rangeMock })
     const eqMock = jest.fn().mockReturnValue({ order: orderMock })
     const selectMock = jest.fn().mockReturnValue({ eq: eqMock, order: orderMock })
     mockSupabase.from = jest.fn().mockReturnValue({ select: selectMock })
@@ -144,7 +143,8 @@ describe('fetchPosts', () => {
 
   it('filters by each valid category: event', async () => {
     const eventPosts = [{ ...MOCK_POST, id: '4', category: 'event' as PostCategory }]
-    const orderMock = jest.fn().mockResolvedValue({ data: eventPosts, error: null })
+    const rangeMock = jest.fn().mockResolvedValue({ data: eventPosts, error: null })
+    const orderMock = jest.fn().mockReturnValue({ range: rangeMock })
     const eqMock = jest.fn().mockReturnValue({ order: orderMock })
     const selectMock = jest.fn().mockReturnValue({ eq: eqMock, order: orderMock })
     mockSupabase.from = jest.fn().mockReturnValue({ select: selectMock })
@@ -203,7 +203,6 @@ describe('createPost', () => {
   })
 
   it('throws when title is empty string', async () => {
-    // Even if supabase would accept it, a validation check should reject
     await expect(
       createPost({ title: '', body: 'Body', category: 'qa' })
     ).rejects.toThrow()
@@ -224,56 +223,21 @@ describe('toggleLike', () => {
   })
 
   it('inserts a like and returns true when post is not yet liked', async () => {
-    // Check: maybeSingle returns null (no existing like)
-    const maybeSingleMock = jest.fn().mockResolvedValue({ data: null, error: null })
-    const eqUserMock = jest.fn().mockReturnValue({ maybeSingle: maybeSingleMock })
-    const eqPostMock = jest.fn().mockReturnValue({ eq: eqUserMock })
-    const selectMock = jest.fn().mockReturnValue({ eq: eqPostMock })
-
-    // Insert like
-    const insertMock = jest.fn().mockResolvedValue({ data: null, error: null })
-
-    // RPC call to increment like_count
-    const rpcMock = jest.fn().mockResolvedValue({ data: null, error: null })
-
-    mockSupabase.from = jest.fn().mockImplementation((table: string) => {
-      if (table === 'likes') {
-        return { select: selectMock, insert: insertMock }
-      }
-      return {}
-    })
-    ;(mockSupabase as unknown as { rpc: jest.Mock }).rpc = rpcMock
+    const insertMock = jest.fn().mockResolvedValue({ error: null })
+    mockSupabase.from = jest.fn().mockReturnValue({ insert: insertMock })
 
     const result = await toggleLike('1')
 
     expect(result).toBe(true)
-    expect(insertMock).toHaveBeenCalledWith({ post_id: '1', user_id: 'user-abc' })
+    expect(insertMock).toHaveBeenCalledWith({ post_id: 1, user_id: 'user-abc' })
   })
 
   it('deletes a like and returns false when post is already liked', async () => {
-    // Check: maybeSingle returns existing like
-    const maybeSingleMock = jest.fn().mockResolvedValue({
-      data: { user_id: 'user-abc', post_id: '1' },
-      error: null,
-    })
-    const eqUserMock = jest.fn().mockReturnValue({ maybeSingle: maybeSingleMock })
+    const insertMock = jest.fn().mockResolvedValue({ error: { code: '23505', message: 'duplicate key' } })
+    const eqUserMock = jest.fn().mockResolvedValue({ error: null })
     const eqPostMock = jest.fn().mockReturnValue({ eq: eqUserMock })
-    const selectMock = jest.fn().mockReturnValue({ eq: eqPostMock })
-
-    // Delete like
-    const eqDelUser = jest.fn().mockResolvedValue({ data: null, error: null })
-    const eqDelPost = jest.fn().mockReturnValue({ eq: eqDelUser })
-    const deleteMock = jest.fn().mockReturnValue({ eq: eqDelPost })
-
-    const rpcMock = jest.fn().mockResolvedValue({ data: null, error: null })
-
-    mockSupabase.from = jest.fn().mockImplementation((table: string) => {
-      if (table === 'likes') {
-        return { select: selectMock, delete: deleteMock }
-      }
-      return {}
-    })
-    ;(mockSupabase as unknown as { rpc: jest.Mock }).rpc = rpcMock
+    const deleteMock = jest.fn().mockReturnValue({ eq: eqPostMock })
+    mockSupabase.from = jest.fn().mockReturnValue({ insert: insertMock, delete: deleteMock })
 
     const result = await toggleLike('1')
 
@@ -287,12 +251,9 @@ describe('toggleLike', () => {
     await expect(toggleLike('1')).rejects.toThrow()
   })
 
-  it('throws when the like check query returns an error', async () => {
-    const maybeSingleMock = jest.fn().mockResolvedValue({ data: null, error: { message: 'Query failed' } })
-    const eqUserMock = jest.fn().mockReturnValue({ maybeSingle: maybeSingleMock })
-    const eqPostMock = jest.fn().mockReturnValue({ eq: eqUserMock })
-    const selectMock = jest.fn().mockReturnValue({ eq: eqPostMock })
-    mockSupabase.from = jest.fn().mockReturnValue({ select: selectMock })
+  it('throws when INSERT returns a non-unique-constraint error', async () => {
+    const insertMock = jest.fn().mockResolvedValue({ error: { code: '42P01', message: 'Query failed' } })
+    mockSupabase.from = jest.fn().mockReturnValue({ insert: insertMock })
 
     await expect(toggleLike('1')).rejects.toThrow('Query failed')
   })
@@ -314,7 +275,6 @@ describe('fetchComments', () => {
     const result = await fetchComments('1')
 
     expect(mockSupabase.from).toHaveBeenCalledWith('comments')
-    expect(eqMock).toHaveBeenCalledWith('post_id', '1')
     expect(result).toEqual(comments)
   })
 

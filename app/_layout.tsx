@@ -24,18 +24,22 @@ export default function RootLayout() {
               accessToken: session.access_token,
               refreshToken: session.refresh_token,
             })
-            const user = session.user
-            const { data: profile } = await supabase
-              .from('users')
-              .select('role')
-              .eq('id', user.id)
-              .single()
-            setUser({
-              id: user.id,
-              email: user.email!,
-              name: user.user_metadata?.name ?? '',
-              role: (profile?.role as 'admin' | 'user') ?? 'user',
-            })
+            // TOKEN_REFRESHED fires every hour — skip the extra DB round-trip
+            // because the user object is already loaded from the initial sign-in.
+            if (event !== 'TOKEN_REFRESHED') {
+              const user = session.user
+              const { data: profile } = await supabase
+                .from('users')
+                .select('role')
+                .eq('id', user.id)
+                .single()
+              setUser({
+                id: user.id,
+                email: user.email!,
+                name: user.user_metadata?.name ?? '',
+                role: (profile?.role as 'admin' | 'user') ?? 'user',
+              })
+            }
           }
         } catch {
           signOut()

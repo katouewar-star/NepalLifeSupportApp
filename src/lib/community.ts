@@ -57,18 +57,23 @@ function dbCommentToComment(row: DbComment): Comment {
 
 // ── fetchPosts ───────────────────────────────────────────────────────────────
 
+export const POSTS_PAGE_SIZE = 20
+
 /**
- * Fetch posts with optional category filter.
+ * Fetch posts with optional category filter and page-based pagination.
  * Posts are ordered newest first.
  */
-export async function fetchPosts(category?: PostCategory): Promise<Post[]> {
+export async function fetchPosts(category?: PostCategory, page = 0): Promise<Post[]> {
+  const from = page * POSTS_PAGE_SIZE
+  const to = from + POSTS_PAGE_SIZE - 1
+
   // Use `any` to work around the Supabase generic chain for method chaining;
   // the runtime behaviour is fully tested via the mock suite.
   const query: any = supabase.from('posts').select('*')
 
   const result = category
-    ? await query.eq('category', category).order('created_at', { ascending: false })
-    : await query.order('created_at', { ascending: false })
+    ? await query.eq('category', category).order('created_at', { ascending: false }).range(from, to)
+    : await query.order('created_at', { ascending: false }).range(from, to)
 
   const { data, error } = result as { data: DbPost[] | null; error: { message: string } | null }
   if (error) throw new Error(error.message)
@@ -113,35 +118,30 @@ export async function createPost(params: {
  * Toggle a like on a post. Returns the new liked state.
  * true  = like was added
  * false = like was removed
+ *
+ * Uses optimistic INSERT: if a unique-constraint violation (23505) is returned
+ * the row already exists, so we DELETE it instead. This halves DB round-trips
+ * in the common "like" path.
  */
 export async function toggleLike(postId: string): Promise<boolean> {
   const userId = requireAuth()
 
-  // Check if already liked
-  const { data: existing, error: checkError } = await supabase
-    .from('likes')
-    .select('*')
-    .eq('post_id', Number(postId))
-    .eq('user_id', userId)
-    .maybeSingle()
+  const { error: insertError } = await (supabase.from('likes') as any)
+    .insert({ post_id: Number(postId), user_id: userId })
 
-  if (checkError) throw new Error(checkError.message)
+  if (!insertError) return true
 
-  if (existing) {
-    // Unlike: delete the row
+  // Already liked — unlike it
+  if (insertError.code === '23505') {
     await supabase
       .from('likes')
       .delete()
       .eq('post_id', Number(postId))
       .eq('user_id', userId)
-
     return false
-  } else {
-    // Like: insert a row
-    await (supabase.from('likes') as any).insert({ post_id: postId, user_id: userId })
-
-    return true
   }
+
+  throw new Error(insertError.message)
 }
 
 // ── fetchComments ────────────────────────────────────────────────────────────

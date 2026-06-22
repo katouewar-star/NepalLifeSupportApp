@@ -2,6 +2,42 @@
  * 翻訳画面 UIテスト
  */
 
+jest.mock('expo-av', () => ({
+  Audio: {
+    Recording: {
+      createAsync: jest.fn().mockResolvedValue({
+        recording: {
+          stopAndUnloadAsync: jest.fn().mockResolvedValue(undefined),
+          getURI: jest.fn().mockReturnValue(null),
+        },
+      }),
+    },
+    RecordingOptionsPresets: { HIGH_QUALITY: {} },
+    requestPermissionsAsync: jest.fn().mockResolvedValue({ status: 'granted' }),
+    setAudioModeAsync: jest.fn().mockResolvedValue(undefined),
+  },
+}))
+
+jest.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string, params?: Record<string, string>) => {
+      const map: Record<string, string> = {
+        'translation.japanese': '日本語',
+        'translation.nepali': 'ネパール語',
+        'translation.translateBtn': '翻訳する',
+        'translation.historyTitle': '履歴',
+        'tabs.translation': '翻訳',
+        'translation.cooldownError': '少し待ってから再度翻訳してください',
+      }
+      if (key === 'translation.inputPlaceholder' && params?.lang) {
+        return `${params.lang}を入力...`
+      }
+      return map[key] ?? key
+    },
+    i18n: { changeLanguage: jest.fn() },
+  }),
+}))
+
 jest.mock('@/lib/translation', () => ({
   translate: jest.fn(),
 }))

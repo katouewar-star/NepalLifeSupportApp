@@ -22,18 +22,47 @@ const SYSTEM_PROMPT = `あなたは在日ネパール人のためのAIアシス�
 ユーザーがネパール語で書いた場合はネパール語で返答し、日本語で書いた場合は日本語で返答してください。
 簡潔でわかりやすい回答を心がけてください。`
 
+/**
+ * Send a chat message. When `onChunk` is provided the response streams
+ * token-by-token and each call receives the accumulated text so far,
+ * enabling real-time display. Without `onChunk` a single awaited response
+ * is returned (useful for testing / non-streaming contexts).
+ */
 export async function sendMessage(
   history: ChatMessage[],
-  userMessage: string
+  userMessage: string,
+  onChunk?: (accumulatedText: string) => void
 ): Promise<string> {
   const client = getClient()
+  const messages = [
+    { role: 'system' as const, content: SYSTEM_PROMPT },
+    ...history.map((m) => ({ role: m.role, content: m.content })),
+    { role: 'user' as const, content: userMessage },
+  ]
+
+  if (onChunk) {
+    const stream = await client.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages,
+      max_tokens: 800,
+      temperature: 0.7,
+      stream: true,
+    })
+
+    let full = ''
+    for await (const chunk of stream) {
+      const delta = chunk.choices[0]?.delta?.content ?? ''
+      if (delta) {
+        full += delta
+        onChunk(full)
+      }
+    }
+    return full || 'すみません、もう一度試してください。'
+  }
+
   const response = await client.chat.completions.create({
     model: 'gpt-4o-mini',
-    messages: [
-      { role: 'system', content: SYSTEM_PROMPT },
-      ...history.map((m) => ({ role: m.role, content: m.content })),
-      { role: 'user', content: userMessage },
-    ],
+    messages,
     max_tokens: 800,
     temperature: 0.7,
   })

@@ -6,6 +6,23 @@ import React from 'react'
 import { render, fireEvent, waitFor } from '@testing-library/react-native'
 import LoginScreen from '@/screens/auth/LoginScreen'
 
+// react-i18next をモック（翻訳キー→日本語文字列）
+jest.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => {
+      const map: Record<string, string> = {
+        'auth.login.emailPlaceholder': 'メールアドレス',
+        'auth.login.passwordPlaceholder': 'パスワード',
+        'auth.login.footerLink': '新規登録',
+        'auth.login.errorEmail': 'メールアドレスを入力してください',
+        'auth.login.errorPassword': 'パスワードを入力してください',
+      }
+      return map[key] ?? key
+    },
+    i18n: { changeLanguage: jest.fn() },
+  }),
+}))
+
 // 認証サービスをモック
 jest.mock('@/lib/auth', () => ({
   signIn: jest.fn(),

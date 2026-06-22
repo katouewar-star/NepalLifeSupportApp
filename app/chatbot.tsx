@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import {
   View,
   Text,
@@ -33,7 +33,7 @@ export default function ChatbotScreen() {
     scrollRef.current?.scrollToEnd({ animated: true })
   }, [messages])
 
-  const handleSend = async () => {
+  const handleSend = useCallback(async () => {
     const text = input.trim()
     if (!text || loading) return
 
@@ -43,27 +43,32 @@ export default function ChatbotScreen() {
     setInput('')
     setLoading(true)
 
+    // Pre-create the assistant bubble so streaming tokens appear immediately
+    const assistantId = (Date.now() + 1).toString()
+    setMessages((prev) => [...prev, { id: assistantId, role: 'assistant', content: '' }])
+
     try {
-      const reply = await sendMessage(history, text)
-      const assistantMsg: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: reply,
-      }
-      setMessages((prev) => [...prev, assistantMsg])
+      await sendMessage(history, text, (partial) => {
+        setMessages((prev) =>
+          prev.map((m) => (m.id === assistantId ? { ...m, content: partial } : m))
+        )
+      })
     } catch {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: (Date.now() + 1).toString(),
-          role: 'assistant',
-          content: 'エラーが発生しました。もう一度お試しください。\nत्रुटि भयो। फेरि प्रयास गर्नुहोस्।',
-        },
-      ])
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === assistantId
+            ? {
+                ...m,
+                content:
+                  'エラーが発生しました。もう一度お試しください。\nत्रुटि भयो। फेरि प्रयास गर्नुहोस्।',
+              }
+            : m
+        )
+      )
     } finally {
       setLoading(false)
     }
-  }
+  }, [input, loading, messages])
 
   return (
     <KeyboardAvoidingView
@@ -99,20 +104,16 @@ export default function ChatbotScreen() {
               <Text style={s.botIcon}>🤖</Text>
             )}
             <View style={[s.bubbleInner, msg.role === 'user' ? s.bubbleUserInner : s.bubbleAssistantInner]}>
-              <Text style={[s.bubbleText, msg.role === 'user' ? s.bubbleUserText : s.bubbleAssistantText]}>
-                {msg.content}
-              </Text>
+              {msg.role === 'assistant' && msg.content === '' ? (
+                <ActivityIndicator size="small" color={RED} />
+              ) : (
+                <Text style={[s.bubbleText, msg.role === 'user' ? s.bubbleUserText : s.bubbleAssistantText]}>
+                  {msg.content}
+                </Text>
+              )}
             </View>
           </View>
         ))}
-        {loading && (
-          <View style={[s.bubble, s.bubbleAssistant]}>
-            <Text style={s.botIcon}>🤖</Text>
-            <View style={s.bubbleAssistantInner}>
-              <ActivityIndicator size="small" color={RED} />
-            </View>
-          </View>
-        )}
       </ScrollView>
 
       {/* Input */}

@@ -1,5 +1,15 @@
 import { create } from 'zustand'
-import { fetchPosts, createPost, toggleLike, fetchComments, addComment, type Post, type PostCategory, type Comment } from '@/lib/community'
+import {
+  fetchPosts,
+  createPost,
+  toggleLike,
+  fetchComments,
+  addComment,
+  POSTS_PAGE_SIZE,
+  type Post,
+  type PostCategory,
+  type Comment,
+} from '@/lib/community'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -8,6 +18,9 @@ export type CategoryFilter = PostCategory | 'all'
 interface CommunityStore {
   posts: Post[]
   loading: boolean
+  loadingMore: boolean
+  hasMore: boolean
+  page: number
   error: string | null
   selectedCategory: CategoryFilter
 
@@ -17,6 +30,7 @@ interface CommunityStore {
 
   // Actions
   loadPosts: (category?: PostCategory) => Promise<void>
+  loadMorePosts: () => Promise<void>
   setCategory: (cat: CategoryFilter) => void
   addPost: (params: { title: string; body: string; category: PostCategory }) => Promise<void>
   likePost: (postId: string) => Promise<void>
@@ -29,19 +43,43 @@ interface CommunityStore {
 export const useCommunityStore = create<CommunityStore>((set, get) => ({
   posts: [],
   loading: false,
+  loadingMore: false,
+  hasMore: true,
+  page: 0,
   error: null,
   selectedCategory: 'all',
   comments: {},
   commentsLoading: false,
 
   loadPosts: async (category?: PostCategory) => {
-    set({ loading: true, error: null })
+    set({ loading: true, error: null, page: 0, hasMore: true })
     try {
-      const posts = await fetchPosts(category)
-      set({ posts, loading: false })
+      const posts = await fetchPosts(category, 0)
+      set({ posts, loading: false, page: 0, hasMore: posts.length === POSTS_PAGE_SIZE })
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error'
       set({ loading: false, error: message })
+    }
+  },
+
+  loadMorePosts: async () => {
+    const { loading, loadingMore, hasMore, page, selectedCategory } = get()
+    if (loading || loadingMore || !hasMore) return
+
+    set({ loadingMore: true })
+    try {
+      const category = selectedCategory === 'all' ? undefined : (selectedCategory as PostCategory)
+      const nextPage = page + 1
+      const morePosts = await fetchPosts(category, nextPage)
+      set((state) => ({
+        posts: [...state.posts, ...morePosts],
+        loadingMore: false,
+        page: nextPage,
+        hasMore: morePosts.length === POSTS_PAGE_SIZE,
+      }))
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unknown error'
+      set({ loadingMore: false, error: message })
     }
   },
 

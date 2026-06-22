@@ -103,7 +103,7 @@ describe('fetchComments – sorted oldest-first', () => {
     mockSupabase.from = jest.fn().mockReturnValue({ select: selectMock })
 
     await fetchComments('42')
-    expect(eqMock).toHaveBeenCalledWith('post_id', '42')
+    expect(eqMock).toHaveBeenCalledWith('post_id', 42)
   })
 
   it('throws when supabase returns an error', async () => {

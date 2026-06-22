@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import React, { memo, useState, useEffect, useCallback } from 'react'
 import {
   View,
   Text,
@@ -38,7 +38,7 @@ interface PostCardProps {
   onLike: (postId: string) => void
 }
 
-function PostCard({ post, onPress, onLike }: PostCardProps) {
+const PostCard = memo(function PostCard({ post, onPress, onLike }: PostCardProps) {
   const { t } = useTranslation()
   const color = categoryColor(post.category)
 
@@ -85,7 +85,7 @@ function PostCard({ post, onPress, onLike }: PostCardProps) {
       </View>
     </TouchableOpacity>
   )
-}
+})
 
 // ── Create Post Modal ─────────────────────────────────────────────────────────
 
@@ -218,12 +218,22 @@ function CreatePostModal({ visible, onClose, onSubmit }: CreatePostModalProps) {
 export default function CommunityScreen() {
   const { t } = useTranslation()
   const router = useRouter()
-  const { posts, loading, selectedCategory, loadPosts, setCategory, addPost, likePost } =
-    useCommunityStore()
+  const {
+    posts,
+    loading,
+    loadingMore,
+    hasMore,
+    selectedCategory,
+    loadPosts,
+    loadMorePosts,
+    setCategory,
+    addPost,
+    likePost,
+  } = useCommunityStore()
   const { isAuthenticated } = useAuthStore()
   const [showCreateModal, setShowCreateModal] = useState(false)
 
-  // Load posts on mount and when category changes
+  // Load posts on mount
   useEffect(() => {
     const category = selectedCategory === 'all' ? undefined : (selectedCategory as PostCategory)
     loadPosts(category)
@@ -256,6 +266,17 @@ export default function CommunityScreen() {
       await addPost(params)
     },
     [addPost]
+  )
+
+  const handleEndReached = useCallback(() => {
+    if (hasMore && !loading && !loadingMore) loadMorePosts()
+  }, [hasMore, loading, loadingMore, loadMorePosts])
+
+  const renderPostCard = useCallback(
+    ({ item }: { item: Post }) => (
+      <PostCard post={item} onPress={handlePostPress} onLike={handleLike} />
+    ),
+    [handlePostPress, handleLike]
   )
 
   const filters: { key: CategoryFilter; label: string }[] = [
@@ -300,9 +321,14 @@ export default function CommunityScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
-          renderItem={({ item }) => (
-            <PostCard post={item} onPress={handlePostPress} onLike={handleLike} />
-          )}
+          renderItem={renderPostCard}
+          onEndReached={handleEndReached}
+          onEndReachedThreshold={0.4}
+          ListFooterComponent={
+            loadingMore
+              ? <ActivityIndicator style={styles.footerLoader} color={ORANGE} />
+              : null
+          }
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyIcon}>💬</Text>
@@ -380,6 +406,7 @@ const styles = StyleSheet.create({
   emptyContainer: { alignItems: 'center', paddingTop: 60 },
   emptyIcon: { fontSize: 40, marginBottom: 12 },
   emptyText: { fontSize: 14, color: '#999' },
+  footerLoader: { marginVertical: 16 },
 
   // ── Post card ──
   card: {
