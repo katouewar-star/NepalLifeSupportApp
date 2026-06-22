@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/useAuthStore'
 import * as ImagePicker from 'expo-image-picker'
+import * as ImageManipulator from 'expo-image-manipulator'
 import type { Database } from '@/lib/database.types'
 
 export type TravelCategory = 'city' | 'nature' | 'culture' | 'food'
@@ -206,16 +207,40 @@ export async function fetchTravelPosts(
   return (data ?? []).map(dbToTravelPost)
 }
 
+/** Max long-edge (px) and JPEG quality used to shrink images before upload */
+const UPLOAD_MAX_EDGE = 1280
+const UPLOAD_QUALITY = 0.7
+
+/**
+ * Resize (long edge → UPLOAD_MAX_EDGE) and re-encode an image as JPEG before
+ * upload. Phone gallery photos are often 3–8 MB at full resolution; this
+ * typically reduces them by ~10×, which is the main fix for slow uploads.
+ */
+async function compressForUpload(imageUri: string): Promise<string> {
+  try {
+    const result = await ImageManipulator.manipulateAsync(
+      imageUri,
+      [{ resize: { width: UPLOAD_MAX_EDGE } }],
+      { compress: UPLOAD_QUALITY, format: ImageManipulator.SaveFormat.JPEG }
+    )
+    return result.uri
+  } catch {
+    // Manipulation failed (e.g. unsupported format) — fall back to original
+    return imageUri
+  }
+}
+
 /** Upload a photo to Supabase Storage and return the public URL */
 export async function uploadTravelPhoto(
   imageUri: string
 ): Promise<string> {
   const userId = requireAuth()
 
-  const response = await fetch(imageUri)
+  const compressedUri = await compressForUpload(imageUri)
+  const response = await fetch(compressedUri)
   const blob = await response.blob()
 
-  // blob.type is reliable on both native and web; fall back to jpg
+  // Always JPEG after compression; fall back to blob.type if unchanged
   const mimeType = blob.type || 'image/jpeg'
   const ext = mimeType.split('/')[1]?.replace('jpeg', 'jpg') ?? 'jpg'
   const path = `${userId}/${Date.now()}.${ext}`

@@ -18,6 +18,7 @@ import {
   TravelCategory,
   DurationKey,
   pickTravelImages,
+  uploadTravelPhoto,
   uploadTravelPhotos,
   createTravelPost,
   updateTravelPost,
@@ -182,24 +183,20 @@ export default function TravelPostScreen() {
 
       setUploading(true)
 
-      // メイン写真アップロード
-      let uploadedUrls: string[] = []
-      if (newUris.length > 0) {
-        uploadedUrls = await uploadTravelPhotos(newUris)
-      }
-      const allPhotoUrls = [...existingUrls, ...uploadedUrls]
+      // メイン写真＋見どころ写真を一括で並列アップロード
+      const mainUploadPromise =
+        newUris.length > 0 ? uploadTravelPhotos(newUris) : Promise.resolve<string[]>([])
 
-      // 見どころ写真アップロード
-      const finalHlPhotos: string[] = []
-      for (let i = 0; i < MAX_HIGHLIGHTS; i++) {
-        const p = hlPhotos[i]
-        if (p.newUri) {
-          const [uploaded] = await uploadTravelPhotos([p.newUri])
-          finalHlPhotos.push(uploaded)
-        } else {
-          finalHlPhotos.push(p.url ?? '')
-        }
-      }
+      const hlUploadPromises = hlPhotos.map((p) =>
+        p.newUri ? uploadTravelPhoto(p.newUri) : Promise.resolve(p.url ?? '')
+      )
+
+      const [uploadedUrls, finalHlPhotos] = await Promise.all([
+        mainUploadPromise,
+        Promise.all(hlUploadPromises),
+      ])
+
+      const allPhotoUrls = [...existingUrls, ...uploadedUrls]
 
       setUploading(false)
 
