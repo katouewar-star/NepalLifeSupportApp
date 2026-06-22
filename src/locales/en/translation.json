@@ -303,6 +303,7 @@
     "disclaimer": "Information is for reference only. Please verify details before traveling.",
     "newPost": "Post a Spot",
     "userPosts": "Community Spots",
+    "externalLink": "Visit Official Site",
     "post": {
       "title": "Post a Spot",
       "editTitle": "Edit Post",
@@ -326,6 +327,8 @@
       "tipsPlaceholder": "Travel tips or things to watch out for",
       "accessLabel": "How to Get There (optional)",
       "accessPlaceholder": "e.g. 10 min walk from the station",
+      "externalUrlLabel": "External Link (optional)",
+      "externalUrlPlaceholder": "e.g. https://...",
       "submit": "Submit",
       "update": "Update",
       "uploading": "Uploading image...",

@@ -8,6 +8,7 @@ import {
   Pressable,
   Modal,
   Image,
+  Linking,
   StyleSheet,
   Dimensions,
   Platform,
@@ -263,6 +264,9 @@ export default function TravelScreen() {
                     </View>
                   </View>
                   <Text style={s.userCardLocation}>📍 {post.location}</Text>
+                  {post.author_name && (
+                    <Text style={s.userCardAuthor}>👤 {post.author_name}</Text>
+                  )}
                   <Text style={s.userCardDesc} numberOfLines={2}>{post.description}</Text>
                   {post.season_tags.length > 0 && (
                     <View style={s.seasonRow}>
@@ -274,6 +278,15 @@ export default function TravelScreen() {
                         </View>
                       ))}
                     </View>
+                  )}
+                  {post.external_url && (
+                    <TouchableOpacity
+                      style={s.externalLinkBtn}
+                      onPress={() => Linking.openURL(post.external_url!)}
+                      activeOpacity={0.75}
+                    >
+                      <Text style={s.externalLinkText}>🔗 {t('travel.externalLink')}</Text>
+                    </TouchableOpacity>
                   )}
                 </View>
               </View>
@@ -755,6 +768,11 @@ const s = StyleSheet.create({
   userCardLocation: {
     fontSize: 11,
     color: '#888',
+    marginBottom: 4,
+  },
+  userCardAuthor: {
+    fontSize: 11,
+    color: '#6B7280',
     marginBottom: 6,
   },
   userCardDesc: {
@@ -762,6 +780,21 @@ const s = StyleSheet.create({
     color: '#666',
     lineHeight: 18,
     marginBottom: 8,
+  },
+  externalLinkBtn: {
+    alignSelf: 'flex-start',
+    marginTop: 8,
+    backgroundColor: '#EFF6FF',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
+  },
+  externalLinkText: {
+    fontSize: 12,
+    color: '#2563EB',
+    fontWeight: '600',
   },
 
   // Disclaimer

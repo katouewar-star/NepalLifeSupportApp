@@ -150,6 +150,7 @@ type DbTravelPost = Database['public']['Tables']['travel_posts']['Row']
 export interface TravelPost {
   id: string
   user_id: string
+  author_name: string | null
   title: string
   description: string
   location: string
@@ -163,6 +164,7 @@ export interface TravelPost {
   tips: string | null
   access_info: string | null
   duration_key: string | null
+  external_url: string | null
   status: 'pending' | 'approved' | 'rejected'
   like_count: number
   created_at: string
@@ -172,10 +174,12 @@ function dbToTravelPost(row: DbTravelPost): TravelPost {
   return {
     ...row,
     id: String(row.id),
+    author_name: row.author_name ?? null,
     photo_urls: row.photo_urls ?? (row.photo_url ? [row.photo_url] : []),
     season_tags: row.season_tags ?? [],
     highlights: row.highlights ?? [],
     highlight_photos: row.highlight_photos ?? [],
+    external_url: row.external_url ?? null,
   }
 }
 
@@ -276,10 +280,11 @@ export type TravelPostParams = {
   tips: string | null
   access_info: string | null
   duration_key: string | null
+  external_url: string | null
 }
 
 /** Create a new travel post */
-export async function createTravelPost(params: TravelPostParams): Promise<TravelPost> {
+export async function createTravelPost(params: TravelPostParams & { author_name?: string | null }): Promise<TravelPost> {
   const userId = requireAuth()
 
   if (!params.title.trim()) throw new Error('title must not be empty')
@@ -290,6 +295,7 @@ export async function createTravelPost(params: TravelPostParams): Promise<Travel
     .from('travel_posts')
     .insert({
       user_id: userId,
+      author_name: params.author_name ?? null,
       title: params.title.trim(),
       description: params.description.trim(),
       location: params.location.trim(),
@@ -303,6 +309,7 @@ export async function createTravelPost(params: TravelPostParams): Promise<Travel
       tips: params.tips || null,
       access_info: params.access_info || null,
       duration_key: params.duration_key || null,
+      external_url: params.external_url || null,
     })
     .select()
     .single()
@@ -354,6 +361,7 @@ export async function updateTravelPost(
       tips: params.tips || null,
       access_info: params.access_info || null,
       duration_key: params.duration_key || null,
+      external_url: params.external_url || null,
     })
     .eq('id', Number(postId))
     .select()

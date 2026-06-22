@@ -79,6 +79,9 @@ export default function TravelPostScreen() {
   const [existingUrls, setExistingUrls] = useState<string[]>([])
   const [newUris, setNewUris]           = useState<string[]>([])
 
+  // Optional fields
+  const [externalUrl, setExternalUrl] = useState('')
+
   // UI state
   const [uploading, setUploading]   = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -111,6 +114,7 @@ export default function TravelPostScreen() {
         })))
         setTips(post.tips ?? '')
         setAccessInfo(post.access_info ?? '')
+        setExternalUrl(post.external_url ?? '')
         // Use photo_urls array; fall back to photo_url for older posts
         setExistingUrls(post.photo_urls.length > 0 ? post.photo_urls : (post.photo_url ? [post.photo_url] : []))
       })
@@ -212,12 +216,13 @@ export default function TravelPostScreen() {
         tips: tips.trim() || null,
         access_info: accessInfo.trim() || null,
         duration_key: durationKey,
+        external_url: externalUrl.trim() || null,
       }
 
       if (isEdit && postId) {
         await updateTravelPost(postId, params)
       } else {
-        await createTravelPost(params)
+        await createTravelPost({ ...params, author_name: user?.name ?? null })
       }
 
       setSuccess(true)
@@ -493,6 +498,19 @@ export default function TravelPostScreen() {
           placeholder={t('travel.post.accessPlaceholder')}
           placeholderTextColor="#bbb"
           maxLength={120}
+        />
+
+        {/* ── External URL ─────────────────────────── */}
+        <Text style={s.label}>🔗 {t('travel.post.externalUrlLabel')}</Text>
+        <TextInput
+          style={s.input}
+          value={externalUrl}
+          onChangeText={setExternalUrl}
+          placeholder={t('travel.post.externalUrlPlaceholder')}
+          placeholderTextColor="#bbb"
+          autoCapitalize="none"
+          keyboardType="url"
+          maxLength={200}
         />
 
         {/* ── Submit ──────────────────────────────── */}

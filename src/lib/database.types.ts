@@ -275,6 +275,7 @@ export interface Database {
         Row: {
           id: number
           user_id: string
+          author_name: string | null
           title: string
           description: string
           location: string
@@ -288,6 +289,7 @@ export interface Database {
           tips: string | null
           access_info: string | null
           duration_key: string | null
+          external_url: string | null
           status: 'pending' | 'approved' | 'rejected'
           like_count: number
           created_at: string
@@ -295,6 +297,7 @@ export interface Database {
         Insert: {
           id?: number
           user_id: string
+          author_name?: string | null
           title: string
           description: string
           location: string
@@ -308,11 +311,13 @@ export interface Database {
           tips?: string | null
           access_info?: string | null
           duration_key?: string | null
+          external_url?: string | null
           status?: 'pending' | 'approved' | 'rejected'
           like_count?: number
           created_at?: string
         }
         Update: {
+          author_name?: string | null
           title?: string
           description?: string
           location?: string
@@ -326,6 +331,7 @@ export interface Database {
           tips?: string | null
           access_info?: string | null
           duration_key?: string | null
+          external_url?: string | null
           status?: 'pending' | 'approved' | 'rejected'
           like_count?: number
         }
