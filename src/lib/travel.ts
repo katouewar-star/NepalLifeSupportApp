@@ -230,29 +230,64 @@ async function compressForUpload(imageUri: string): Promise<string> {
   }
 }
 
+/**
+ * Max photos compressed+uploaded at once. Each upload decodes/resizes/re-encodes
+ * a full-res image via canvas, and mobile browsers (esp. iOS Safari) have a hard
+ * canvas/decode memory limit. Processing every photo in parallel (up to 9 at once)
+ * exhausts that memory and makes uploads hang and never finish. Cap concurrency so
+ * only a few run at a time; the rest queue and start as slots free up.
+ */
+const UPLOAD_CONCURRENCY = 2
+
+let activeUploads = 0
+const uploadWaiters: Array<() => void> = []
+
+function acquireUploadSlot(): Promise<void> {
+  if (activeUploads < UPLOAD_CONCURRENCY) {
+    activeUploads++
+    return Promise.resolve()
+  }
+  return new Promise((resolve) => uploadWaiters.push(resolve))
+}
+
+function releaseUploadSlot(): void {
+  const next = uploadWaiters.shift()
+  // Hand the just-freed slot to the next waiter (activeUploads stays the same),
+  // or reclaim it if no one is waiting.
+  if (next) next()
+  else activeUploads--
+}
+
 /** Upload a photo to Supabase Storage and return the public URL */
 export async function uploadTravelPhoto(
   imageUri: string
 ): Promise<string> {
   const userId = requireAuth()
 
-  const compressedUri = await compressForUpload(imageUri)
-  const response = await fetch(compressedUri)
-  const blob = await response.blob()
+  await acquireUploadSlot()
+  try {
+    const compressedUri = await compressForUpload(imageUri)
+    const response = await fetch(compressedUri)
+    const blob = await response.blob()
 
-  // Always JPEG after compression; fall back to blob.type if unchanged
-  const mimeType = blob.type || 'image/jpeg'
-  const ext = mimeType.split('/')[1]?.replace('jpeg', 'jpg') ?? 'jpg'
-  const path = `${userId}/${Date.now()}.${ext}`
+    // Always JPEG after compression; fall back to blob.type if unchanged
+    const mimeType = blob.type || 'image/jpeg'
+    const ext = mimeType.split('/')[1]?.replace('jpeg', 'jpg') ?? 'jpg'
+    // Random suffix avoids path collisions when two uploads share a millisecond
+    const rand = Math.random().toString(36).slice(2, 8)
+    const path = `${userId}/${Date.now()}-${rand}.${ext}`
 
-  const { error } = await supabase.storage
-    .from('travel-photos')
-    .upload(path, blob, { contentType: mimeType, upsert: false })
+    const { error } = await supabase.storage
+      .from('travel-photos')
+      .upload(path, blob, { contentType: mimeType, upsert: false })
 
-  if (error) throw new Error(error.message)
+    if (error) throw new Error(error.message)
 
-  const { data } = supabase.storage.from('travel-photos').getPublicUrl(path)
-  return data.publicUrl
+    const { data } = supabase.storage.from('travel-photos').getPublicUrl(path)
+    return data.publicUrl
+  } finally {
+    releaseUploadSlot()
+  }
 }
 
 /** Pick a single image. Returns uri or null if cancelled. */
